@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Guess Number</title>
+		<style>
+			div {
+				text-align: center;
+			}
+
+			#tips {
+				color: darkgreen;
+			}
+
+			a {
+				color: blue;
+			}
+		</style>
+	</head>
+	<body>
+		<form method="post" action="/guessnum">
+			<div>
+				<h2>Guess a number from range 1 to 100!</h2>
+				Guess: <input type="text" name="guess" id="guess">
+				<br>
+				<br>
+				<div id="tips">{{ tips }}</div>
+				<br>
+				<input type="submit" value="Guess">
+				<br>
+				<br>
+				<a href="/">Back</a>
+			</div>
+		</form>
+		<script>
+			document.getElementById("guess").focus();
+		</script>
+	</body>
+</html>
