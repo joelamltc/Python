@@ -164,7 +164,6 @@ class GuestBookMainPage(webapp2.RequestHandler):
 		self.response.write('<html>'+ 
 			'<head><title>Guest Book</title></haed>'+
 			'<body>')
-			
 
 		if users.get_current_user():
 			url = users.create_logout_url(self.request.uri)
@@ -174,7 +173,7 @@ class GuestBookMainPage(webapp2.RequestHandler):
 			url = users.create_login_url(self.request.uri)
 			url_linktext = 'Login'
 			name = 'Ananonymous'
-		self.response.write('<div>Hello, %s! <a href="%s" style="color:blue">%s</a></div>' % (name, url, url_linktext))
+		self.response.write('<div>Hello, %s!&nbsp;&nbsp;&nbsp;<a href="%s" style="color:blue">%s</a>&nbsp;&nbsp;&nbsp;<a href="/geolocation" style="color:blue">Your Location</a></div>' % (name, url, url_linktext))
 
 		self.response.write('<div style="text-align:center">')
 		guestbook_name = self.request.get('guestbook_name', default_guestbook)
