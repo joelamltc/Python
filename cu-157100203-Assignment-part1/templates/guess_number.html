@@ -19,13 +19,14 @@
 	<body>
 		<form method="post" action="/guessnum">
 			<div>
-				<h2>Guess a number from range 1 to 100!</h2>
+				<h2>Guess a number from range {{ minimum }} to {{ maximum }}!</h2>
 				Guess: <input type="text" name="guess" id="guess">
 				<br>
 				<br>
 				<div id="tips">{{ tips }}</div>
 				<br>
 				<input type="submit" value="Guess">
+				<input type="hidden" id="result" value="{{ win }}">
 				<br>
 				<br>
 				<a href="/">Back</a>
@@ -33,6 +34,9 @@
 		</form>
 		<script>
 			document.getElementById("guess").focus();
+			if (document.getElementById("result").value == "True") {
+				window.alert('Bingo!');
+			}
 		</script>
 	</body>
 </html>

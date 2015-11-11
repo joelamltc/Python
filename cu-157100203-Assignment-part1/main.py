@@ -46,13 +46,10 @@ class MainPage(webapp2.RequestHandler):
 
 class Random10(webapp2.RequestHandler):
     def get(self):
-    	rand10 = random.sample(range(1, 11), 10)
     	self.response.write('<title>Random 10</title>')
     	self.response.write('<div style="text-align:center">')
     	self.response.write('<h2>Random 10</h2>')
-    	for i in rand10:
-    		self.response.write(' ')
-        	self.response.write(i)
+        self.response.write(random.sample(range(1, 11), 10))
         self.response.write(back_link)
         self.response.write('</div>')
 
@@ -98,32 +95,45 @@ jinja_environment = jinja2.Environment(
 )
 
 def generateRandomNumber():
-	rand_num = random.randint(1, 101)
+	rand_num = random.randint(1, 100)
 	return rand_num
 
 rand_num = None
+minimum = None
+maximum = None
 
 class GuessNumber(webapp2.RequestHandler):
 	def get(self):
-		global rand_num
+		global rand_num, minimum, maximum
 		rand_num = generateRandomNumber()
+		minimum = 1
+		maximum = 100
 		values = {
 			'random_num' : rand_num,
-			'tips' : ''
+			'tips' : '',
+			'minimum' : minimum,
+			'maximum' : maximum
 		}
 		template = jinja_environment.get_template('guess_number.html')
 		self.response.out.write(template.render(values))
 
 	def post(self):
-		global rand_num
+		global rand_num, minimum, maximum
+		win = None
 		try:
 			guess = int(self.request.get('guess'))
-			if guess == rand_num:
-				tips = 'Bingo! Please click <a href="/guessnum">reset</a> to reset the game.'
-			elif guess > rand_num:
-				tips = 'Your number is greater.'
-			elif guess < rand_num:
-				tips = 'Your number is less.'
+			if guess > 0 and guess <= 100:
+				if guess == rand_num:
+					win = True
+					tips = 'Bingo! Please click <a href="/guessnum">here</a> to reset the game.'
+				elif guess > rand_num:
+					maximum = guess - 1
+					tips = 'Your number is greater.'
+				elif guess < rand_num:
+					minimum = guess + 1
+					tips = 'Your number is less.'
+			else:
+				tips = 'Please enter a valid number!'
 		except ValueError:
 			tips = 'Please enter a number!'
 
@@ -132,7 +142,10 @@ class GuessNumber(webapp2.RequestHandler):
 
 		values = {
 			'random_num' : rand_num,
-			'tips' : tips
+			'tips' : tips,
+			'minimum' : minimum,
+			'maximum' : maximum,
+			'win' : win
 		}
 		template = jinja_environment.get_template('guess_number.html')
 		self.response.out.write(template.render(values))
