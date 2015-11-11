@@ -122,7 +122,7 @@ class GuessNumber(webapp2.RequestHandler):
 		win = None
 		try:
 			guess = int(self.request.get('guess'))
-			if guess > 0 and guess <= 100:
+			if guess > 0 and guess <= 100 and guess >= minimum and guess <= maximum:
 				if guess == rand_num:
 					win = True
 					tips = 'Bingo! Please click <a href="/guessnum">here</a> to reset the game.'
