@@ -22,6 +22,7 @@ import cgi
 import urllib
 import urllib2
 import json
+import logging
 from google.appengine.ext import ndb
 from google.appengine.api import users
 
@@ -34,7 +35,6 @@ class MainPage(webapp2.RequestHandler):
 		page.append(dict(link='/userservices', text='Users Services'))
 		page.append(dict(link='/guessnum', text='Guess Number'))
 		page.append(dict(link='/guestmain', text='Guest Book'))
-		page.append(dict(link='/geolocation', text='Geo Location'))
 
 		self.response.write('<title>RAD Assignment Part One</title>')
 		self.response.write('<div style="text-align:center">')
@@ -186,7 +186,7 @@ class GuestBookMainPage(webapp2.RequestHandler):
 			url = users.create_login_url(self.request.uri)
 			url_linktext = 'Login'
 			name = 'Ananonymous'
-		self.response.write('<div>Hello, %s!&nbsp;&nbsp;&nbsp;<a href="%s" style="color:blue">%s</a>&nbsp;&nbsp;&nbsp;<a href="/geolocation" style="color:blue">Your Location</a></div>' % (name, url, url_linktext))
+		self.response.write('<div>Hello, %s!&nbsp;&nbsp;&nbsp;<a href="%s" style="color:blue">%s</a>&nbsp;&nbsp;&nbsp;</div>' % (name, url, url_linktext))
 
 		self.response.write('<div style="text-align:center">')
 		guestbook_name = self.request.get('guestbook_name', default_guestbook)
@@ -196,9 +196,9 @@ class GuestBookMainPage(webapp2.RequestHandler):
 
 		for greeting in greetings:
 			if greeting.author:
-				self.response.write('<b>'+ greeting.author.nickname() +'</b> wrote at '+ greeting.date.strftime("%Y-%m-%d %H:%M:%S") +':')
+				self.response.write('<a href="/geolocation/?'+ urllib.urlencode({ 'lat' : greeting.lat, 'lng' : greeting.lng }) +'" style="color:blue"><b>'+ greeting.author.nickname() +'</b> wrote at '+ greeting.date.strftime("%Y-%m-%d %H:%M:%S") +':</a>')
 			else:
-				self.response.write('Ananonymous person wrote at '+ greeting.date.strftime("%Y-%m-%d %H:%M:%S") +':')
+				self.response.write('<a href="/geolocation/?'+ urllib.urlencode({ 'lat' : greeting.lat, 'lng' : greeting.lng }) +'" style="color:blue">Ananonymous person wrote at '+ greeting.date.strftime("%Y-%m-%d %H:%M:%S") +':</a>')
 			self.response.write('<blockquote>%s</blockquote>' % cgi.escape(greeting.content))
 
 		sign_query_params = urllib.urlencode({ 'guestbook_name' : guestbook_name })
@@ -206,25 +206,14 @@ class GuestBookMainPage(webapp2.RequestHandler):
 
 class Guestbook(webapp2.RequestHandler):
     def post(self):
-    	guestbook_name = self.request.get('guestbook_name', default_guestbook)
-    	greeting = Greeting(parent = guestbook_key(guestbook_name))
+		guestbook_name = self.request.get('guestbook_name', default_guestbook)
+		greeting = Greeting(parent = guestbook_key(guestbook_name))
 
-    	if users.get_current_user():
-    		greeting.author = users.get_current_user()
+		if users.get_current_user():
+			greeting.author = users.get_current_user()
 
-    	greeting.content = self.request.get('content')
-    	greeting.put()
+		greeting.content = self.request.get('content')
 
-    	query_params = { 'guestbook_name' : guestbook_name }
-    	self.redirect('/guestmain?' + urllib.urlencode(query_params))
-
-class Greeting(ndb.Model):
-	author = ndb.UserProperty()
-	content = ndb.StringProperty(indexed = False)
-	date = ndb.DateTimeProperty(auto_now_add = True)
-
-class GeoLocation(webapp2.RequestHandler):
-	def get(self):
 		error = ''
 		try:
 			url = 'http://api.hostip.info/get_json.php'
@@ -237,20 +226,35 @@ class GeoLocation(webapp2.RequestHandler):
 			lat = content['geoplugin_latitude']
 			lng = content['geoplugin_longitude']
 
-			GMAPS_URL = "http://maps.googleapis.com/maps/api/streetview?size=600x600&heading=235&sensor=false&"
-			img = GMAPS_URL + ''.join('location=%s,%s' % (lat, lng))
+			# GMAPS_URL = "http://maps.googleapis.com/maps/api/streetview?size=600x600&heading=235&sensor=false&"
+			# img = GMAPS_URL + ''.join('location=%s,%s' % (lat, lng))
 		except urllib2.URLError:
 			error = 'Some error may occured.'
 
-		self.response.write('<title>Geo Location</title>')
-		self.response.write('<div style="text-align:center">')
-		self.response.write('<h2>My Location</h2>')
-		self.response.write('<img src="%s"></img><br><br>' % img)
-		self.response.write('<iframe width="600" height="600" frameborder="0" style="border:0"'+
-			'src="https://www.google.com/maps/embed/v1/streetview?key=AIzaSyBa6LYjyDAvK1okvTKUOa08aFTEggATFU0&location=%s,%s&heading=210&pitch=10&fov=35" allowfullscreen></iframe>' % (lat, lng))
-		self.response.write('<br><br><a href="/" style="color:blue">Back</a>')
-		self.response.write('</div>')
+		greeting.lat = lat
+		greeting.lng = lng
+		greeting.put()
 
+		query_params = { 'guestbook_name' : guestbook_name }
+		self.redirect('/guestmain?' + urllib.urlencode(query_params))
+
+class Greeting(ndb.Model):
+	author = ndb.UserProperty()
+	content = ndb.StringProperty(indexed = False)
+	date = ndb.DateTimeProperty(auto_now_add = True)
+	lat = ndb.StringProperty(indexed = False)
+	lng = ndb.StringProperty(indexed = False)
+	
+class GeoLocation(webapp2.RequestHandler):
+	def get(self):
+		api_key = 'AIzaSyB1r0jX4KJj7Hw9NdzsEigrxRbv-Obd3Uw'
+		values = {
+			'api_key' : api_key,
+			'lat' : self.request.get('lat'),
+			'lng' : self.request.get('lng')
+		}
+		template = jinja_environment.get_template('location.html')
+		self.response.out.write(template.render(values))
 
 app = webapp2.WSGIApplication([
 	('/', MainPage),
@@ -259,7 +263,7 @@ app = webapp2.WSGIApplication([
 	('/guessnum', GuessNumber),
 	('/guestmain', GuestBookMainPage),
 	('/guestbook', Guestbook),
-	('/geolocation', GeoLocation)
+	('/geolocation/', GeoLocation)
 ], debug=True)
 
 
