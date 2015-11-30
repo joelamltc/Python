@@ -1,0 +1,66 @@
+.trackbar { 
+	background: #DDD; 
+	height: 50px; 
+	font-family: "Trebuchet MS", Arial, Helvetica, sans-serif; 
+}
+
+.trackbar:nth-child(even) { 
+	background: #EEE; 
+}
+
+.playbutton { 
+	opacity: .8; 
+	display: block; 
+	float: left; 
+	width: 19px; 
+	height: 22px; 
+	margin: 14px 0px 0px 14px;
+	/*background: url(thumbnails/ak_playbtn.png) no-repeat;*/
+	border: none; 
+	cursor: pointer; 
+	outline: none; 
+}
+
+.playbutton:hover { 
+	opacity: 1; 
+}
+
+.trackname{ 
+	float: left; 
+	color: #000; 
+	margin: 12px 0px 0px 14px; 
+	font-size: 20px; 
+	font-weight: bold; 
+}
+
+#play_track {
+	background: #DDD;
+	height: 50px;
+	position: fixed;
+    bottom: 0;
+}
+
+#progress {
+	height: 10px;
+	width: 0;
+	color: black;
+}
+
+#progress {
+	width: inherit;
+	height: 6px;
+	background-color: #ffffff;
+	margin: 1px;
+	display: none;
+}
+
+#progress div {
+	height: 100%;
+	width: 0;
+	background-color: #444444;
+}
+
+#search {
+	text-align: center;
+	padding-bottom: 8px;
+}

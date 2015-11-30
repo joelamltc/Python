@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Well Play - A music player with lyrics</title>
+		<script src="https://www.youtube.com/iframe_api"></script>
+		<script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="/css/main.css">
+	</head>
+
+	<body>
+		<form action="/" method="post">
+			<div id="search">
+				<input type="text" id="query" name="query">
+				<input type="submit" id="search" value="Search">
+			</div>
+		</form>
+		<div id="track_list"></div>
+		<div id="play_track">
+			<div>
+				<button id="prev">Previous</button>
+				<button id="play" onclick="playVideo()">Play</button>
+				<button id="stop" onclick="stopVideo()">Stop</button>
+				<button id="pause" onclick="pauseVideo()">Pause</button>				
+				<button id="next">Next</button>
+				<button id="loop">Loop</button>
+				<div id="progress">
+					<div></div>
+				</div>
+			</div>
+		</div>
+		<div id="player"></div>
+		<script>
+			var player;
+			var _ = (id) => document.getElementById(id);
+			var youtube_videos = {{ youtube_videos }};
+			if (youtube_videos != {}) {
+				var track_list = _("track_list");
+				for (var key in youtube_videos) {
+					var audio_index = parseInt(key) + 1;
+					var track_bar = document.createElement("div");
+					var play_button = document.createElement("button");
+					var track_name = document.createElement("div");
+					track_bar.className = "trackbar";
+					play_button.className = "playbutton";
+					track_name.className = "trackname";
+					track_name.innerHTML = audio_index + ". " + youtube_videos[key].title;
+					play_button.id = youtube_videos[key].id;
+					track_bar.appendChild(play_button);
+					track_bar.appendChild(track_name);
+					track_list.appendChild(track_bar);
+
+					play_button.addEventListener("click", function() {
+						if (player.getVideoData().video_id == this.id) {
+							if (player.getPlayerState() == -1 || player.getPlayerState() == 5 || player.getPlayerState() == 0) {
+								switchSong(this.id);
+							}
+							else if (player.getPlayerState() == 2) {
+								playVideo();
+							}
+							else {
+								pauseVideo();
+							}
+						}
+						else {
+							switchSong(this.id);
+						}
+					})
+				}
+
+				if ("{{ next_page }}" != "None") {
+					var next_page_btn = document.createElement("button");
+					next_page_btn.id = "next_page";
+					next_page_btn.value = "{{ next_page }}";
+					next_page_btn.innerHTML = "Next";
+					track_list.appendChild(next_page_btn);
+				}
+
+				if ("{{ prev_page }}" != "None") {
+					var prev_page_btn = document.createElement("button");
+					prev_page_btn.id = "prev_page";
+					prev_page_btn.value = "{{ prev_page }}";
+					prev_page_btn.innerHTML = "Previous";
+					track_list.appendChild(prev_page_btn);
+				}
+
+				function onYouTubeIframeAPIReady() {
+		        	player = new YT.Player('player', {
+			          	height: '0',
+			          	width: '0',
+			          	events: {
+			          		'onStateChange': onPlayerStateChange
+			          	}
+				    });
+			    }
+
+			    function onPlayerStateChange(event) {
+        			if (event.data == YT.PlayerState.PLAYING) {
+          				var playerTotalTime = player.getDuration();
+          				$("#progress").show();
+      					timer = setInterval(function() {
+        					var playerCurrentTime = player.getCurrentTime();
+        					var playerTimeDifference = (playerCurrentTime / playerTotalTime) * 100;
+        					progress(playerTimeDifference, _("progress"));
+      					}, 1000);      
+        			} else {
+        				clearTimeout(timer);
+        			}
+      			}
+
+			    function playVideo() {
+			    	player.playVideo();
+			    }
+
+			    function stopVideo() {
+			    	player.stopVideo();
+			    }
+
+			    function pauseVideo() {
+			    	player.pauseVideo();
+			    }
+
+			    function switchSong(videoId) {
+			    	player.loadVideoByUrl("http://www.youtube.com/v/"+ videoId +"?version=3", 0, "medium");
+			    }
+
+			    function progress(percent, element) {
+  					var progressBarWidth = percent * element.offsetWidth / 100;
+  					$("#progress").find('div').animate({ width: progressBarWidth });
+				}
+			}
+		</script>
+	</body>
+
+</html>
