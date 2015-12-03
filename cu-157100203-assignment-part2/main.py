@@ -48,7 +48,7 @@ class MainHandler(webapp2.RequestHandler):
 
 class SearchArtistHandler(webapp2.RequestHandler):
     def get(self):
-        artistName = self.request.get('artist_name')
+        artistName          = urllib2.quote(self.request.get('artist_name').encode('utf-8'))
         getArtistInfoURL    = 'http://ws.audioscrobbler.com/2.0/?method=artist.getInfo&artist=%s&api_key=d5adeaee26ea9f9621f4be79ce14950b&format=json' % artistName
         result              = json.loads(urllib2.urlopen(getArtistInfoURL).read().decode('utf-8'))
         printresult         = json.dumps( json.loads(urllib2.urlopen(getArtistInfoURL).read().decode('utf-8')), indent=4, separators=(',',': ') )
@@ -74,14 +74,11 @@ class SearchArtistHandler(webapp2.RequestHandler):
                                     <br/>
                                     <br/>
                                     <br/>
-                                    <div>
-                                        %s
-                                    </div>
-            ''' %(artistImage, artistName, artistInfo, cgi.escape(printresult)))
+            ''' %(artistImage, artistName, artistInfo))
 
 class SearchTrackHandler(webapp2.RequestHandler):
     def get(self):
-        keyWords = self.request.get('key_words')
+        keyWords            = urllib2.quote(self.request.get('key_words').encode('utf-8'))
         trackSearchURL      = 'http://ws.audioscrobbler.com/2.0/?method=track.search&track=%s&api_key=d5adeaee26ea9f9621f4be79ce14950b&format=json' % keyWords
         result              = json.loads(urllib2.urlopen(trackSearchURL).read().decode('utf-8'))
         printresult         = json.dumps( json.loads(urllib2.urlopen(trackSearchURL).read().decode('utf-8')), indent=4, separators=(',',': ') )
@@ -98,8 +95,8 @@ class SearchTrackHandler(webapp2.RequestHandler):
                                 ''')
             for queryResult in result['results']['trackmatches']['track']:
                 queryString = '%s %s' % (queryResult['artist'],queryResult['name'])
-                urlValue = urllib.urlencode({ 'artist_name' : queryResult['artist'] })
-                queryURLValue = urllib.urlencode({ 'query' : queryString })
+                urlValue = urllib.urlencode({ 'artist_name' : queryResult['artist'].encode('utf-8') })
+                queryURLValue = urllib.urlencode({ 'query' : queryString.encode('utf-8') })
                 self.response.write('''
                                     <tr>
                                         <td><a href="/search?%s">%s</a></td>
@@ -108,6 +105,7 @@ class SearchTrackHandler(webapp2.RequestHandler):
                                     </tr>
                 '''  % (queryURLValue,queryResult['name'],urlValue,queryResult['artist']) )
             self.response.write("</table>")
+            #self.response.write('<br/><br/> %s <br/><br/> %s' % (trackSearchURL,printresult))
 
 class SearchHandler(webapp2.RequestHandler):
     def get(self):
