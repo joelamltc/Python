@@ -3,8 +3,8 @@
 	<head>
 		<meta charset="UTF-8">
 		<title>Well Play - A music player with lyrics</title>
-		<script src="https://www.youtube.com/iframe_api"></script>
-		<script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+		<script src="/js/iframe_api.js"></script>
+		<script src="/js/jquery-2.1.4.min.js"></script>
 		<link rel="stylesheet" type="text/css" href="/css/main.css">
 		<link rel="stylesheet" type="text/css" href="/css/slider.css">
 	</head>
@@ -21,7 +21,8 @@
 			<div>
 				<!-- <button id="prev">Previous</button> -->
 				<button id="play" onclick="playVideo()">Play</button>
-				<button id="pause" onclick="pauseVideo()">Pause</button>				
+				<button id="pause" onclick="pauseVideo()">Pause</button>
+				<button id="stop" onclick="stopVideo()">Stop</button>				
 				<!-- <button id="next">Next</button> -->
 				<button id="hide">Hide Video</button>
 				<button id="loop_one">Loop 1 Song</button>
@@ -101,7 +102,8 @@
 			}
 
 			function play_button_event() {
-				if (player.getVideoData().video_id == this.id) {
+				player_video_id = (typeof player.getVideoData().video_id === 'undefined') ? '' : player.getVideoData().video_id;
+				if (player_video_id == this.id) {
 					if (player.getPlayerState() == -1 || player.getPlayerState() == 5 || player.getPlayerState() == 0) {
 						switchSong(this.id);
 						$("#playing_track").val(this.id);
@@ -234,6 +236,10 @@
 		    	player.pauseVideo();
 		    }
 
+		    function stopVideo() {
+		    	player.stopVideo();
+		    }
+
 		    function switchSong(videoId) {
 		    	_("progressbar").value = 0;
 		    	player.loadVideoByUrl("http://www.youtube.com/v/"+ videoId +"?version=3", 0, "small");
@@ -291,7 +297,6 @@
 				_("volume-tooltip").innerHTML = _("volume").value;
 				player.setVolume(_("volume").value);
 			}
-
 		</script>
 	</body>
 </html>
