@@ -6,8 +6,8 @@
 		<script src="https://www.youtube.com/iframe_api"></script>
 		<script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
 		<link rel="stylesheet" type="text/css" href="/css/main.css">
+		<link rel="stylesheet" type="text/css" href="/css/slider.css">
 	</head>
-
 	<body>
 		<form action="/" method="post">
 			<div id="search">
@@ -15,121 +15,283 @@
 				<input type="submit" id="search" value="Search">
 			</div>
 		</form>
+		<input type="hidden" id="playing_track" name="playing_track" value="">
 		<div id="track_list"></div>
 		<div id="play_track">
 			<div>
-				<button id="prev">Previous</button>
+				<!-- <button id="prev">Previous</button> -->
 				<button id="play" onclick="playVideo()">Play</button>
-				<button id="stop" onclick="stopVideo()">Stop</button>
 				<button id="pause" onclick="pauseVideo()">Pause</button>				
-				<button id="next">Next</button>
-				<button id="loop">Loop</button>
-				<div id="progress">
-					<div></div>
+				<!-- <button id="next">Next</button> -->
+				<button id="hide">Hide Video</button>
+				<button id="loop_one">Loop 1 Song</button>
+				<div>
+					<input type="range" name="progressbar" id="progressbar" value="0">
+				</div>
+				<div>
+					<span><img id="mute" src="/pics/unmute.png" height="22px" width="19px"></img></span>
+					<input type="range" name="volume" id="volume" value="100" max="100" min="0" oninput="volume_tooltip()">
+					<span id="volume-tooltip"></span>
 				</div>
 			</div>
 		</div>
 		<div id="player"></div>
 		<script>
 			var player;
+			var loop_one = false;
 			var _ = (id) => document.getElementById(id);
 			var youtube_videos = {{ youtube_videos }};
 			if (youtube_videos != {}) {
-				var track_list = _("track_list");
-				for (var key in youtube_videos) {
-					var audio_index = parseInt(key) + 1;
-					var track_bar = document.createElement("div");
-					var play_button = document.createElement("button");
-					var track_name = document.createElement("div");
-					track_bar.className = "trackbar";
-					play_button.className = "playbutton";
-					track_name.className = "trackname";
-					track_name.innerHTML = audio_index + ". " + youtube_videos[key].title;
-					play_button.id = youtube_videos[key].id;
-					track_bar.appendChild(play_button);
-					track_bar.appendChild(track_name);
-					track_list.appendChild(track_bar);
+				print_song_list(youtube_videos);
+			}
 
-					play_button.addEventListener("click", function() {
-						if (player.getVideoData().video_id == this.id) {
-							if (player.getPlayerState() == -1 || player.getPlayerState() == 5 || player.getPlayerState() == 0) {
-								switchSong(this.id);
-							}
-							else if (player.getPlayerState() == 2) {
-								playVideo();
-							}
-							else {
-								pauseVideo();
-							}
+			function print_song_list(youtube_videos) {
+				var track_list = _("track_list");
+				track_list.innerHTML = "";
+				for (var key in youtube_videos) {
+					if (!isNaN(parseInt(key))) {
+						var audio_index = parseInt(key) + 1;
+						var track_bar = document.createElement("div");
+						var play_button = document.createElement("button");
+						var track_name = document.createElement("div");
+						track_bar.className = "trackbar";
+						play_button.className = "playbutton";
+						track_name.className = "trackname";
+						play_button.type = "button";
+						track_name.innerHTML = audio_index + ". " + youtube_videos[key].title;
+						play_button.id = youtube_videos[key].id;
+						track_bar.appendChild(play_button);
+						track_bar.appendChild(track_name);
+						track_list.appendChild(track_bar);
+
+						play_button.addEventListener("click", play_button_event);
+
+						if (youtube_videos[key].id == _("playing_track").value) {
+							play_button.style.background = "url(pics/pause.png)";
+							play_button.style.backgroundSize = "19px 22px";
+						}
+					} 
+					else if (key == "next_page"){
+						if (_("next_page") === null) {
+							var next_page_btn = document.createElement("button");
+							next_page_btn.id = "next_page";
+							next_page_btn.type = "button";
+							next_page_btn.value = youtube_videos[key];
+							next_page_btn.innerHTML = "Next Page";
+							_("search").appendChild(next_page_btn);
 						}
 						else {
-							switchSong(this.id);
+							_("next_page").value = youtube_videos[key];
 						}
-					})
-				}
-
-				if ("{{ next_page }}" != "None") {
-					var next_page_btn = document.createElement("button");
-					next_page_btn.id = "next_page";
-					next_page_btn.value = "{{ next_page }}";
-					next_page_btn.innerHTML = "Next";
-					track_list.appendChild(next_page_btn);
-				}
-
-				if ("{{ prev_page }}" != "None") {
-					var prev_page_btn = document.createElement("button");
-					prev_page_btn.id = "prev_page";
-					prev_page_btn.value = "{{ prev_page }}";
-					prev_page_btn.innerHTML = "Previous";
-					track_list.appendChild(prev_page_btn);
-				}
-
-				function onYouTubeIframeAPIReady() {
-		        	player = new YT.Player('player', {
-			          	height: '0',
-			          	width: '0',
-			          	events: {
-			          		'onStateChange': onPlayerStateChange
-			          	}
-				    });
-			    }
-
-			    function onPlayerStateChange(event) {
-        			if (event.data == YT.PlayerState.PLAYING) {
-          				var playerTotalTime = player.getDuration();
-          				$("#progress").show();
-      					timer = setInterval(function() {
-        					var playerCurrentTime = player.getCurrentTime();
-        					var playerTimeDifference = (playerCurrentTime / playerTotalTime) * 100;
-        					progress(playerTimeDifference, _("progress"));
-      					}, 1000);      
-        			} else {
-        				clearTimeout(timer);
-        			}
-      			}
-
-			    function playVideo() {
-			    	player.playVideo();
-			    }
-
-			    function stopVideo() {
-			    	player.stopVideo();
-			    }
-
-			    function pauseVideo() {
-			    	player.pauseVideo();
-			    }
-
-			    function switchSong(videoId) {
-			    	player.loadVideoByUrl("http://www.youtube.com/v/"+ videoId +"?version=3", 0, "medium");
-			    }
-
-			    function progress(percent, element) {
-  					var progressBarWidth = percent * element.offsetWidth / 100;
-  					$("#progress").find('div').animate({ width: progressBarWidth });
+					}
+					else if (key == "prev_page") {
+						if (_("prev_page") === null) {
+							var prev_page_btn = document.createElement("button");
+							prev_page_btn.id = "prev_page";
+							prev_page_btn.type = "button";
+							prev_page_btn.value = youtube_videos[key];
+							prev_page_btn.innerHTML = "Previous Page";
+							_("search").appendChild(prev_page_btn);
+						}
+						else {
+							_("prev_page").value = youtube_videos[key];
+						}
+					}
 				}
 			}
+
+			function play_button_event() {
+				if (player.getVideoData().video_id == this.id) {
+					if (player.getPlayerState() == -1 || player.getPlayerState() == 5 || player.getPlayerState() == 0) {
+						switchSong(this.id);
+						$("#playing_track").val(this.id);
+						$(".playbutton").css("background", "url(pics/play.png)");
+						$(".playbutton").css("background-size", "19px 22px");
+						this.style.background = "url(pics/pause.png)";
+						this.style.backgroundSize = "19px 22px";
+					}
+					else if (player.getPlayerState() == 2) {
+						playVideo();
+						this.style.background = "url(pics/pause.png)";
+						this.style.backgroundSize = "19px 22px";
+					}
+					else {
+						pauseVideo();
+						this.style.background = "url(pics/play.png)";
+						this.style.backgroundSize = "19px 22px";
+					}
+				}
+				else {
+					switchSong(this.id);
+					$("#playing_track").val(this.id);
+					$(".playbutton").css("background", "url(pics/play.png)");
+					$(".playbutton").css("background-size", "19px 22px");
+					this.style.background = "url(pics/pause.png)";
+					this.style.backgroundSize = "19px 22px";
+				}
+			}
+
+			if ("{{ next_page }}" != "None") {
+				var next_page_btn = document.createElement("button");
+				next_page_btn.id = "next_page";
+				next_page_btn.type = "button";
+				next_page_btn.value = "{{ next_page }}";
+				next_page_btn.innerHTML = "Next Page";
+				_("search").appendChild(next_page_btn);
+			}
+
+			// if ("{{ prev_page }}" != "None") {
+			// 	var prev_page_btn = document.createElement("button");
+			// 	prev_page_btn.id = "prev_page";
+			// 	prev_page_btn.type = "button";
+			// 	prev_page_btn.value = "{{ prev_page }}";
+			// 	prev_page_btn.innerHTML = "Previous Page";
+			// 	_("search").appendChild(prev_page_btn);
+			// }
+
+			function onYouTubeIframeAPIReady() {
+	        	player = new YT.Player('player', {
+		          	height: '150',
+		          	width: '250',
+		          	playerVars: {
+     					'rel': 0,
+		          		'autoplay': 0,
+     					'controls': 0, 
+     					'showinfo': 0,
+     					'modestbranding': 1
+		          	},
+		          	events: {
+		          		'onStateChange': onPlayerStateChange
+		          	}
+			    });
+		    }
+
+		    if (typeof player === 'undefined') {
+		    	$("#player").hide();
+		    }
+
+		    function onPlayerStateChange(event) {
+		    	var timer;
+    			if (event.data == YT.PlayerState.PLAYING) {
+    				$("#player").show();
+    				$("#" + $("#playing_track").val()).css("background", "url(pics/pause.png)");
+    				$("#" + $("#playing_track").val()).css("background-size", "19px 22px");
+      				var playerTotalTime = Math.round(player.getDuration());
+      				_("progressbar").max = playerTotalTime;
+  					timer = setInterval(function() {
+    					var playerCurrentTime = player.getCurrentTime();
+    					_("progressbar").stepUp((Math.round(playerCurrentTime) - _("progressbar").value));
+  					}, 1000);      
+    			}
+    			else if (event.data == YT.PlayerState.ENDED) {
+    				clearTimeout(timer);
+    				$("#" + $("#playing_track").val()).css("background", "url(pics/play.png)");
+    				$("#" + $("#playing_track").val()).css("background-size", "19px 22px");
+    				if (loop_one) {
+    					switchSong($("#playing_track").val());
+    				}
+    			} 
+    			else if (event.data == YT.PlayerState.PAUSED) {
+    				$("#" + $("#playing_track").val()).css("background", "url(pics/play.png)");
+    				$("#" + $("#playing_track").val()).css("background-size", "19px 22px");
+    			}
+    			else {
+    				clearTimeout(timer);	
+    			}
+  			}
+
+  			$(document).on("click", "#next_page", function() {
+				$.ajax({
+					type: "POST",
+					url: "/ajax",
+					cache: false,
+					data: "query=" + $("#query").val() + "&token=" + $(this).val(),
+					success: function(data) {
+						json = JSON.parse(data);
+						print_song_list(json);
+					}
+				});
+			});
+
+			$(document).on("click", "#prev_page", function() {
+				$.ajax({
+					type: "POST",
+					url: "/ajax",
+					cache: false,
+					data: "query=" + $("#query").val() + "&token=" + $(this).val(),
+					success: function(data) {
+						json = JSON.parse(data);
+						print_song_list(json);
+					}
+				});
+			});
+
+		    function playVideo() {
+		    	player.playVideo();
+		    }
+
+		    function pauseVideo() {
+		    	player.pauseVideo();
+		    }
+
+		    function switchSong(videoId) {
+		    	_("progressbar").value = 0;
+		    	player.loadVideoByUrl("http://www.youtube.com/v/"+ videoId +"?version=3", 0, "medium");
+		    }
+
+			$("#progressbar").mouseup(function() {
+				player.seekTo(this.value, true);
+			}).mousedown(function() {
+				player.seekTo(this.value, false);
+			});
+
+			$("#volume").change(function() {
+				$("#volume-tooltip").hide();
+			});
+
+			$("#hide").click(function() {
+				if ($("#player").is(":visible")) {
+					$("#player").hide();
+					$(this).text('Show Video');
+				}
+				else {
+					$("#player").show();
+					$(this).text('Hide Video');
+				}
+			});
+
+			$("#mute").click(function() {
+				var volume = $("#volume").val();
+				if (volume > 0) {
+					$(this).attr("src", "/pics/muted.png");
+					$(this).attr("data-vol", volume);
+					player.mute();						
+					$("#volume").val(0);
+				}
+				else {
+					$(this).attr("src", "/pics/unmute.png");
+					player.unMute();
+					$("#volume").val($(this).attr("data-vol"));
+				}
+			});
+
+			$("#loop_one").click(function() {
+				if (loop_one) {
+					loop_one = false;
+					$(this).css("color", "black");
+				}
+				else {
+					loop_one = true;
+					$(this).css("color", "lightgrey");
+				}
+			});
+
+			function volume_tooltip() {
+				$("#volume-tooltip").show();
+				_("volume-tooltip").innerHTML = _("volume").value;
+				player.setVolume(_("volume").value);
+			}
+
 		</script>
 	</body>
-
 </html>
