@@ -15,7 +15,8 @@
 	width: 19px; 
 	height: 22px; 
 	margin: 14px 0px 0px 14px;
-	/*background: url(thumbnails/ak_playbtn.png) no-repeat;*/
+	background: url(/pics/play.png) no-repeat;
+	background-size: 19px 22px;
 	border: none; 
 	cursor: pointer; 
 	outline: none; 
@@ -34,13 +35,13 @@
 }
 
 #play_track {
-	background: #DDD;
-	height: 50px;
+	background: lightgrey;
+	height: 70px;
 	position: fixed;
     bottom: 0;
 }
 
-#progress {
+/*#progress {
 	height: 10px;
 	width: 0;
 	color: black;
@@ -58,9 +59,25 @@
 	height: 100%;
 	width: 0;
 	background-color: #444444;
-}
+}*/
 
 #search {
 	text-align: center;
-	padding-bottom: 8px;
+	margin-bottom: 4px;
+}
+
+#progressbar:hover {
+	cursor: pointer;
+}
+
+#mute:hover {
+	cursor: pointer;
+}
+
+#volume:hover {
+	cursor: pointer;
+}
+
+#volume-tooltip {
+	display: none;
 }
