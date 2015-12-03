@@ -9,7 +9,7 @@
 		<link rel="stylesheet" type="text/css" href="/css/slider.css">
 	</head>
 	<body>
-		<form action="/" method="post">
+		<form action="/search" method="post">
 			<div id="search">
 				<input type="text" id="query" name="query">
 				<input type="submit" id="search" value="Search">
@@ -236,7 +236,7 @@
 
 		    function switchSong(videoId) {
 		    	_("progressbar").value = 0;
-		    	player.loadVideoByUrl("http://www.youtube.com/v/"+ videoId +"?version=3", 0, "medium");
+		    	player.loadVideoByUrl("http://www.youtube.com/v/"+ videoId +"?version=3", 0, "small");
 		    }
 
 			$("#progressbar").mouseup(function() {
