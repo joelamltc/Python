@@ -30,6 +30,7 @@ youtube_search_order = 'viewCount'
 youtube_search_maxResult = '10'
 youtube_next_page_token = None
 youtube_prev_page_token = None
+page_token = None
 youtube_videos = {}
 
 jinja_environment = jinja2.Environment(
@@ -109,21 +110,12 @@ class SearchTrackHandler(webapp2.RequestHandler):
 
 class SearchHandler(webapp2.RequestHandler):
     def get(self):
-        # values = {
-        #     'youtube_videos' : {},
-        #     'next_page' : None,
-        #     'prev_page' : None
-        # }
-        # main_html = jinja_environment.get_template('main.html')
-        # self.response.out.write(main_html.render(values))
-        global youtube_search_query, youtube_next_page_token, youtube_prev_page_token, youtube_videos
-
-        page_token = self.request.get('token')
+        global youtube_search_query, youtube_next_page_token, youtube_prev_page_token, youtube_videos, page_token
 
         if urllib2.quote(self.request.get('query').encode('utf-8')):
             youtube_search_query = urllib2.quote(self.request.get('query').encode('utf-8'))
 
-        if page_token:
+        if page_token is not None:
             youtube_search_api_url = 'https://www.googleapis.com/youtube/v3/search?key=%s&part=%s&q=%s&type=%s&order=%s&maxResults=%s&pageToken=%s' % ( youtube_api_key, youtube_search_part, youtube_search_query, youtube_search_type, youtube_search_order, youtube_search_maxResult, page_token )
         else:
             youtube_search_api_url = 'https://www.googleapis.com/youtube/v3/search?key=%s&part=%s&q=%s&type=%s&order=%s&maxResults=%s' % ( youtube_api_key, youtube_search_part, youtube_search_query, youtube_search_type, youtube_search_order, youtube_search_maxResult )
@@ -135,8 +127,13 @@ class SearchHandler(webapp2.RequestHandler):
 
             if 'nextPageToken' in youtube_search_result:
                 youtube_next_page_token = youtube_search_result['nextPageToken']
+            else:
+                youtube_next_page_token = None
+
             if 'prevPageToken' in youtube_search_result:
                 youtube_prev_page_token = youtube_search_result['prevPageToken']
+            else:
+                youtube_prev_page_token = None
 
             youtube_video_list = youtube_search_result['items']
             for x in range(len(youtube_video_list)):
@@ -163,14 +160,12 @@ class SearchHandler(webapp2.RequestHandler):
         self.response.write(msg_error)
 
     def post(self):
-        global youtube_search_query, youtube_next_page_token, youtube_prev_page_token, youtube_videos
-
-        page_token = self.request.get('token')
+        global youtube_search_query, youtube_next_page_token, youtube_prev_page_token, youtube_videos, page_token
 
         if urllib2.quote(self.request.get('query').encode('utf-8')):
             youtube_search_query = urllib2.quote(self.request.get('query').encode('utf-8'))
 
-        if page_token:
+        if page_token is not None:
             youtube_search_api_url = 'https://www.googleapis.com/youtube/v3/search?key=%s&part=%s&q=%s&type=%s&order=%s&maxResults=%s&pageToken=%s' % ( youtube_api_key, youtube_search_part, youtube_search_query, youtube_search_type, youtube_search_order, youtube_search_maxResult, page_token )
         else:
             youtube_search_api_url = 'https://www.googleapis.com/youtube/v3/search?key=%s&part=%s&q=%s&type=%s&order=%s&maxResults=%s' % ( youtube_api_key, youtube_search_part, youtube_search_query, youtube_search_type, youtube_search_order, youtube_search_maxResult )
@@ -182,8 +177,13 @@ class SearchHandler(webapp2.RequestHandler):
 
             if 'nextPageToken' in youtube_search_result:
                 youtube_next_page_token = youtube_search_result['nextPageToken']
+            else:
+                youtube_next_page_token = None
+
             if 'prevPageToken' in youtube_search_result:
                 youtube_prev_page_token = youtube_search_result['prevPageToken']
+            else:
+                youtube_prev_page_token = None
 
             youtube_video_list = youtube_search_result['items']
             for x in range(len(youtube_video_list)):
@@ -210,17 +210,8 @@ class SearchHandler(webapp2.RequestHandler):
         self.response.write(msg_error)
 
 class AjaxHandler(webapp2.RequestHandler):
-    def get(self):
-        values = {
-            'youtube_videos' : cgi.escape(json.dumps(youtube_videos)),
-            'next_page' : youtube_next_page_token,
-            'prev_page' : youtube_prev_page_token
-        }
-        main_html = jinja_environment.get_template('main.html')
-        self.response.out.write(main_html.render(values))
-
     def post(self):
-        global youtube_search_query, youtube_next_page_token, youtube_prev_page_token, youtube_videos
+        global youtube_search_query, youtube_next_page_token, youtube_prev_page_token, youtube_videos, page_token
 
         page_token = self.request.get('token')
 
@@ -239,8 +230,13 @@ class AjaxHandler(webapp2.RequestHandler):
 
             if 'nextPageToken' in youtube_search_result:
                 youtube_next_page_token = youtube_search_result['nextPageToken']
+            else:
+                youtube_next_page_token = None
+
             if 'prevPageToken' in youtube_search_result:
                 youtube_prev_page_token = youtube_search_result['prevPageToken']
+            else:
+                youtube_prev_page_token = None
 
             youtube_video_list = youtube_search_result['items']
             for x in range(len(youtube_video_list)):

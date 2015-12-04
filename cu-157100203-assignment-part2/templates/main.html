@@ -7,6 +7,7 @@
 		<script src="/js/jquery-2.1.4.min.js"></script>
 		<link rel="stylesheet" type="text/css" href="/css/main.css">
 		<link rel="stylesheet" type="text/css" href="/css/slider.css">
+		<link rel="shortcut icon" href="/pics/wp.png">
 	</head>
 	<body>
 		<form action="/search" method="post">
@@ -46,6 +47,10 @@
 				print_song_list(youtube_videos);
 			}
 
+			if ($("#prev_page").val() == "null") {
+				$("#prev_page").hide();
+			}
+
 			function print_song_list(youtube_videos) {
 				var track_list = _("track_list");
 				track_list.innerHTML = "";
@@ -72,19 +77,6 @@
 							play_button.style.backgroundSize = "19px 22px";
 						}
 					} 
-					else if (key == "next_page"){
-						if (_("next_page") === null) {
-							var next_page_btn = document.createElement("button");
-							next_page_btn.id = "next_page";
-							next_page_btn.type = "button";
-							next_page_btn.value = youtube_videos[key];
-							next_page_btn.innerHTML = "Next Page";
-							_("search").appendChild(next_page_btn);
-						}
-						else {
-							_("next_page").value = youtube_videos[key];
-						}
-					}
 					else if (key == "prev_page") {
 						if (_("prev_page") === null) {
 							var prev_page_btn = document.createElement("button");
@@ -96,6 +88,19 @@
 						}
 						else {
 							_("prev_page").value = youtube_videos[key];
+						}
+					}
+					else if (key == "next_page"){
+						if (_("next_page") === null) {
+							var next_page_btn = document.createElement("button");
+							next_page_btn.id = "next_page";
+							next_page_btn.type = "button";
+							next_page_btn.value = youtube_videos[key];
+							next_page_btn.innerHTML = "Next Page";
+							_("search").appendChild(next_page_btn);
+						}
+						else {
+							_("next_page").value = youtube_videos[key];
 						}
 					}
 				}
@@ -133,7 +138,7 @@
 				}
 			}
 
-			if ("{{ next_page }}" != "None") {
+			if ("{{ next_page }}" != "None" && _("next_page") === null) {
 				var next_page_btn = document.createElement("button");
 				next_page_btn.id = "next_page";
 				next_page_btn.type = "button";
@@ -141,15 +146,6 @@
 				next_page_btn.innerHTML = "Next Page";
 				_("search").appendChild(next_page_btn);
 			}
-
-			// if ("{{ prev_page }}" != "None") {
-			// 	var prev_page_btn = document.createElement("button");
-			// 	prev_page_btn.id = "prev_page";
-			// 	prev_page_btn.type = "button";
-			// 	prev_page_btn.value = "{{ prev_page }}";
-			// 	prev_page_btn.innerHTML = "Previous Page";
-			// 	_("search").appendChild(prev_page_btn);
-			// }
 
 			function onYouTubeIframeAPIReady() {
 	        	player = new YT.Player('player', {
@@ -168,14 +164,13 @@
 			    });
 		    }
 
-		    if (typeof player === 'undefined') {
-		    	$("#player").hide();
-		    }
+		    // if (typeof player === 'undefined') {
+		    // 	$("#player").hide();
+		    // }
 
 		    function onPlayerStateChange(event) {
 		    	var timer;
     			if (event.data == YT.PlayerState.PLAYING) {
-    				$("#player").show();
     				$("#" + $("#playing_track").val()).css("background", "url(pics/pause.png)");
     				$("#" + $("#playing_track").val()).css("background-size", "19px 22px");
       				var playerTotalTime = Math.round(player.getDuration());
@@ -211,6 +206,12 @@
 					success: function(data) {
 						json = JSON.parse(data);
 						print_song_list(json);
+						if (json["prev_page"]) {
+							$("#prev_page").show();
+						}
+						else {
+							$("#prev_page").hide();
+						}
 					}
 				});
 			});
@@ -224,6 +225,12 @@
 					success: function(data) {
 						json = JSON.parse(data);
 						print_song_list(json);
+						if (json["prev_page"]) {
+							$("#prev_page").show();
+						}
+						else {
+							$("#prev_page").hide();
+						}
 					}
 				});
 			});
