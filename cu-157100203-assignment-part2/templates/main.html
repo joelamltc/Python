@@ -72,7 +72,7 @@
 
 						play_button.addEventListener("click", play_button_event);
 
-						if (youtube_videos[key].id == _("playing_track").value) {
+						if (youtube_videos[key].id == _("playing_track").value && player.getPlayerState() == 1) {
 							play_button.style.background = "url(pics/pause.png)";
 							play_button.style.backgroundSize = "19px 22px";
 						}
@@ -109,6 +109,13 @@
 			function play_button_event() {
 				player_video_id = (typeof player.getVideoData().video_id === 'undefined') ? '' : player.getVideoData().video_id;
 				if (player_video_id == this.id) {
+					// player state
+					// -1 – unstarted
+					// 0 – ended
+					// 1 – playing
+					// 2 – paused
+					// 3 – buffering
+					// 5 – video cued
 					if (player.getPlayerState() == -1 || player.getPlayerState() == 5 || player.getPlayerState() == 0) {
 						switchSong(this.id);
 						$("#playing_track").val(this.id);
@@ -258,8 +265,10 @@
 				player.seekTo(this.value, false);
 			});
 
-			$("#volume").change(function() {
+			$("#volume").mouseup(function() {
 				$("#volume-tooltip").hide();
+			}).mousedown(function() {
+				$("#volume-tooltip").show();
 			});
 
 			$("#hide").click(function() {
@@ -300,7 +309,6 @@
 			});
 
 			function volume_tooltip() {
-				$("#volume-tooltip").show();
 				_("volume-tooltip").innerHTML = _("volume").value;
 				player.setVolume(_("volume").value);
 			}
