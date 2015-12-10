@@ -300,9 +300,9 @@ a:hover{
 #display_playing_track{
 	height: 60px;
 	width: 200px;
-	position: fixed;
+	position: relative;
 	float: left;
-	bottom: 61px;
+	bottom: 60px;
 	background-color: #272727;
 }
 
@@ -311,7 +311,7 @@ a:hover{
 	bottom: 0px;
 	width:1440px;
 	height:60px;
-	position:fixed;
+	position:absolute;
     background-color: #272727;
     padding-top: 20px;
 }
