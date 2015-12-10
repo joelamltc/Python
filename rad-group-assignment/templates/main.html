@@ -13,7 +13,7 @@
 	<body>
 		<div id="search_bar">
 			<div id="logo"><img src="/pics/icons/wplogo_bw.png" height="74px"></div>
-			<div id="search">		
+			<div id="search">
 				<form id="searchField" action="/result" method="get">
 					<input type="text" class="form-control" name="key_words" placeholder="Search">
 				</form>
@@ -221,14 +221,15 @@
 			});
 
 			$("#hide").click(function() {
+				var height = $(window).height() - 74 - 60;
 				if ($("#player").is(":visible")) {
 					$("#player").hide();
-					$(".lyris").css("height", "665px");
+					$(".lyrics").css("height", height + "px");
 					$(this).css("background", "url(/pics/icons/mini.png)");
 					$(this).css("background-size", "20px 20px");
 				}
 				else {
-					$(".lyris").css("height", "380px");
+					$(".lyrics").css("height", (height - 285) + "px");
 					$("#player").show();
 					$(this).css("background", "url(/pics/icons/mini_grey.png)");
 					$(this).css("background-size", "20px 20px");
