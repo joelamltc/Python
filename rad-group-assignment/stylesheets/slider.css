@@ -1,0 +1,180 @@
+input[type=range]#progressbar {
+    /*removes default webkit styles*/
+    -webkit-appearance: none;
+    
+    /*fix for FF unable to apply focus style bug */
+    border: 1px solid #272727;
+    
+    /*required for proper track sizing in FF*/
+    width: 750px;
+}
+input[type=range]#progressbar::-webkit-slider-runnable-track {
+    width: 750px;
+    height: 5px;
+    background: #1DD760;
+    border: none;
+    /*border-radius: 5px; */
+}
+input[type=range]#progressbar::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    border: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: #d3d3d3;
+    margin-top: -5px;
+}
+input[type=range]#progressbar:focus {
+    outline: none;
+}
+input[type=range]#progressbar:focus::-webkit-slider-runnable-track {
+    background: #1DD760;
+}
+
+input[type=range]#progressbar::-moz-range-track {
+    width: 750px;
+    height: 5px;
+    background: #1DD760;
+    border: none;
+    /*border-radius: 5px; */
+}
+input[type=range]#progressbar::-moz-range-thumb {
+    border: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: #d3d3d3;
+}
+
+/*hide the outline behind the border*/
+input[type=range]#progressbar:-moz-focusring {
+    outline: 1px solid #272727;
+    outline-offset: -1px;
+}
+
+input[type=range]#progressbar::-ms-track {
+    width: 750px;
+    height: 5px;
+    
+    /*remove bg colour from the track, we'll use ms-fill-lower and ms-fill-upper instead */
+    background: transparent;
+    
+    /*leave room for the larger thumb to overflow with a transparent border */
+    border-color: transparent;
+    border-width: 6px 0;
+
+    /*remove default tick marks*/
+    color: transparent;
+}
+input[type=range]#progressbar::-ms-fill-lower {
+    background: #777;
+    border-radius: 10px;
+}
+input[type=range]#progressbar::-ms-fill-upper {
+    background: #ddd;
+    border-radius: 10px;
+}
+input[type=range]#progressbar::-ms-thumb {
+    border: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: #d3d3d3;
+}
+input[type=range]#progressbar:focus::-ms-fill-lower {
+    background: #888;
+}
+input[type=range]#progressbar:focus::-ms-fill-upper {
+    background: #ccc;
+}
+
+/*--------------------------------------volumn-----------------------------*/
+input[type=range]#volume {
+    /*removes default webkit styles*/
+    -webkit-appearance: none;
+    
+    /*fix for FF unable to apply focus style bug */
+    border: 1px solid #272727;
+    
+    /*required for proper track sizing in FF*/
+    width: 100px;
+}
+input[type=range]#volume::-webkit-slider-runnable-track {
+    width: 100px;
+    height: 5px;
+    background: #1DD760;
+    border: none;
+    /*border-radius: 5px; */
+}
+input[type=range]#volume::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    border: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: #d3d3d3;
+    margin-top: -5px;
+}
+input[type=range]#volume:focus {
+    outline: none;
+}
+input[type=range]#volume:focus::-webkit-slider-runnable-track {
+    background: #1DD760;
+}
+
+input[type=range]#volume::-moz-range-track {
+    width: 100px;
+    height: 5px;
+    background: #1DD760;
+    border: none;
+    /*border-radius: 5px; */
+}
+input[type=range]#volume::-moz-range-thumb {
+    border: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: #d3d3d3;
+}
+
+/*hide the outline behind the border*/
+input[type=range]#volume:-moz-focusring {
+    outline: 1px solid #272727;
+    outline-offset: -1px;
+}
+
+input[type=range]#volume::-ms-track {
+    width: 100px;
+    height: 5px;
+    
+    /*remove bg colour from the track, we'll use ms-fill-lower and ms-fill-upper instead */
+    background: transparent;
+    
+    /*leave room for the larger thumb to overflow with a transparent border */
+    border-color: transparent;
+    border-width: 6px 0;
+
+    /*remove default tick marks*/
+    color: transparent;
+}
+input[type=range]#volume::-ms-fill-lower {
+    background: #777;
+    border-radius: 10px;
+}
+input[type=range]#volume::-ms-fill-upper {
+    background: #ddd;
+    border-radius: 10px;
+}
+input[type=range]#volume::-ms-thumb {
+    border: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: #d3d3d3;
+}
+input[type=range]#volume:focus::-ms-fill-lower {
+    background: #888;
+}
+input[type=range]#volume:focus::-ms-fill-upper {
+    background: #ccc;
+}

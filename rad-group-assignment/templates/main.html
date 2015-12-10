@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>Well Play - A music player with lyrics</title>
+		<script src="/js/jquery-2.1.4.min.js"></script>
+		<script src="/js/bootstrap.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="/css/css_main.css">
+		<link rel="stylesheet" type="text/css" href="/css/slider.css">
+		<link rel="icon shortcut" href="/css/image/wp.png">
+	</head>
+	<body>
+		<div id="search_bar">
+			<div id="logo"><img src="/pics/icons/wplogo_bw.png" height="74px"></div>
+			<div id="search">		
+				<form id="searchField" action="/result" method="get">
+					<input type="text" class="form-control" name="key_words" placeholder="Search">
+				</form>
+				<input type="hidden" id="playing_track" name="playing_track" value="">
+				<input type="hidden" id="playing_query" name="playing_query" value="">	
+			</div>
+			<div id="user">
+				Welcome, CCYK
+			</div>
+		</div>
+		<div class="play_list">
+			<div class="small_icon">icon</div>
+			<div class="playlist_name">playlist</div>
+		</div>
+		<div id="content"></div>
+		<div id="player"></div>
+		<div class="lyrics"></div>
+		<div class="clear"></div>
+		<div id="display_playing_track"></div>
+		<div class="player_contorller">
+			<div id="controls">
+				<button id="prev"></button>
+				<button id="play"></button>
+				<!-- <button id="pause" onclick="pauseVideo()"></button> -->
+				<!-- <button id="stop" onclick="stopVideo()">Stop</button> -->
+				<button id="next"></button>
+			</div>
+			<div id="progress">
+				<div id="playtime">00:00</div>
+				<div>
+					<input type="range" name="progressbar" id="progressbar" value="0">
+				</div>
+				<div id="totaltime">00:00</div>
+			</div>
+			<div id="player_panel">
+				<button id="hide"></button>
+				<button id="shuffle"></button>
+				<button id="loop"></button>
+				<button id="loop_one"></button>
+			</div>
+			<div id="volumebar">
+				<div>
+					<img id="mute" src="/pics/icons/music.png" height="22px" width="19px"></img>
+				</div>
+				<div>
+					<input type="range" name="volume" id="volume" value="100" max="100" min="0" oninput="volume_tooltip()">
+				</div>
+			</div>
+		</div>	
+		<div id="ajax_layer"></div>
+		<script>
+			var tag = document.createElement('script');
+	      	tag.src = "https://www.youtube.com/iframe_api";
+	      	var firstScriptTag = document.getElementsByTagName('script')[0];
+	      	firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+			var player;
+			var loop_one = false;
+			var _ = (id) => document.getElementById(id);
+		    function onYouTubeIframeAPIReady() {
+	        	player = new YT.Player('player', {
+		          	height: '250',
+		          	width: '390',
+		          	playerVars: {
+     					'rel': 0,
+		          		'autoplay': 0,
+     					'controls': 0,
+     					'showinfo': 0,
+     					'modestbranding': 1
+		          	},
+		          	events: {
+		          		'onStateChange': onPlayerStateChange
+		          	}
+			    });
+		    }
+
+		    function onPlayerStateChange(event) {
+		    	var timer;
+    			if (event.data == YT.PlayerState.PLAYING) {
+    				$(".play").each(function() {
+    					if ($(this).attr('attr-query') == $("#playing_query").val() && $(this).attr('id') == $("#playing_track").val()) {
+    						$(this).css("background", "url(pics/icons/pause.png)");
+    						$(this).css("background-size", "19px 22px");
+    					}
+    				});
+    				$("#play").css("background", "url(pics/icons/pause.png)");
+    				$("#play").css("background-size", "30px 35px");
+      				var playerTotalTime = Math.round(player.getDuration());
+      				_("progressbar").max = playerTotalTime;
+      				$("#totaltime").html(calculateTime(playerTotalTime));
+  					timer = setInterval(function() {
+    					var playerCurrentTime = player.getCurrentTime();
+    					_("progressbar").stepUp((Math.round(playerCurrentTime) - _("progressbar").value));
+    					$("#playtime").html(calculateTime(playerCurrentTime));
+  					}, 1000);      
+    			}
+    			else if (event.data == YT.PlayerState.ENDED) {
+    				clearTimeout(timer);
+    				$(".play").each(function() {
+    					if ($(this).attr('attr-query') == $("#playing_query").val() && $(this).attr('id') == $("#playing_track").val()) {
+    						$(this).css("background", "url(pics/icons/play.png)");
+    						$(this).css("background-size", "19px 22px");
+    					}
+    				});
+    				$("#play").css("background", "url(pics/icons/play.png)");
+    				$("#play").css("background-size", "30px 35px");
+    				if (loop_one) {
+    					switchSong($("#playing_track").val());
+    				}
+    			} 
+    			else if (event.data == YT.PlayerState.PAUSED) {	
+    				$(".play").each(function() {
+    					if ($(this).attr('attr-query') == $("#playing_query").val() && $(this).attr('id') == $("#playing_track").val()) {
+    						$(this).css("background", "url(pics/icons/play.png)");
+    						$(this).css("background-size", "19px 22px");
+    					}
+    				});
+    				$("#play").css("background", "url(pics/icons/play.png)");
+    				$("#play").css("background-size", "30px 35px");
+    			}
+    			else if (event.data == -1) {
+    				clearTimeout(timer);
+    				$(".play").each(function() {
+    					if ($(this).attr('attr-query') == $("#playing_query").val() && $(this).attr('id') == $("#playing_track").val()) {
+    						$(this).css("background", "url(pics/icons/play.png)");
+    						$(this).css("background-size", "19px 22px");
+    					}
+    				});
+    				$("#play").css("background", "url(pics/icons/play.png)");
+    				$("#play").css("background-size", "30px 35px");
+    			}
+    			else {
+    				clearTimeout(timer);	
+    			}
+  			}
+
+  			$(document).on("click", ".play", function() {
+				var query = $(this).attr("attr-query");
+				var playbutton = $(this);
+				$.ajax({
+					type: "POST",
+					url: "/searchYoutube",
+					cache: false,
+					data: "query=" + query,
+					success: function(data) {
+						var result = data.split('<joelamltc>');
+						videoId = result[0];
+						playbutton.attr("id", videoId);
+
+						player_video_id = (typeof player.getVideoData().video_id === 'undefined') ? '' : player.getVideoData().video_id;
+						if (player_video_id == videoId && query == $("#playing_query").val()) {
+							// player state
+							// -1 – unstarted
+							// 0 – ended
+							// 1 – playing
+							// 2 – paused
+							// 3 – buffering
+							// 5 – video cued
+							if (player.getPlayerState() == -1 || player.getPlayerState() == 5 || player.getPlayerState() == 0) {
+								switchSong(videoId);
+								$("#playing_track").val(videoId);
+								$("#playing_query").val(query);
+								$(".play").css("background", "url(pics/icons/play.png)");
+								$(".play").css("background-size", "19px 22px");
+								playbutton.css("background", "url(pics/icons/pause.png)");
+								playbutton.css("background-size", "19px 22px");
+							}
+							else if (player.getPlayerState() == 2) {
+								playVideo();
+								playbutton.css("background", "url(pics/icons/pause.png)");
+								playbutton.css("background-size", "19px 22px");
+							}
+							else {
+								pauseVideo();
+								playbutton.css("background", "url(pics/icons/play.png)");
+								playbutton.css("background-size", "19px 22px");
+							}
+						}
+						else {
+							switchSong(videoId);
+							$("#playing_track").val(videoId);
+							$("#playing_query").val(query);
+							$(".play").css("background", "url(pics/icons/play.png)");
+							$(".play").css("background-size", "19px 22px");
+							playbutton.css("background", "url(pics/icons/pause.png)");
+							playbutton.css("background-size", "19px 22px");
+						}
+
+
+
+						lyricsSplit = result[2].split("\n");
+						lyrics = '';
+						for (var i = 0; i < lyricsSplit.length; i++) {
+							lyrics += lyricsSplit[i] + "<br>";
+						}
+						$("div.lyrics").html(lyrics);
+					}
+				});
+			});
+			
+			$("#progressbar").mouseup(function() {
+				player.seekTo(this.value, true);
+			}).mousedown(function() {
+				player.seekTo(this.value, false);
+			});
+
+			$("#hide").click(function() {
+				if ($("#player").is(":visible")) {
+					$("#player").hide();
+					$(".lyris").css("height", "665px");
+					$(this).css("background", "url(/pics/icons/mini.png)");
+					$(this).css("background-size", "20px 20px");
+				}
+				else {
+					$(".lyris").css("height", "380px");
+					$("#player").show();
+					$(this).css("background", "url(/pics/icons/mini_grey.png)");
+					$(this).css("background-size", "20px 20px");
+				}
+			});
+
+			$("#mute").click(function() {
+				var volume = $("#volume").val();
+				if (volume > 0) {
+					$(this).attr("src", "/pics/icons/music_grey.png");
+					$(this).attr("data-vol", volume);
+					player.mute();						
+					$("#volume").val(0);
+				}
+				else {
+					$(this).attr("src", "/pics/icons/music.png");
+					player.unMute();
+					$("#volume").val($(this).attr("data-vol"));
+				}
+			});
+
+			$("#loop_one").click(function() {
+				if (loop_one) {
+					loop_one = false;
+					$(this).css("background", "url(/pics/icons/repeat_grey.png)");
+					$(this).css("background-size", "30px 30px");
+				}
+				else {
+					loop_one = true;
+					$(this).css("background", "url(/pics/icons/repeat.png)");
+					$(this).css("background-size", "30px 30px");
+				}
+			});
+
+			$("#play").click(function() {
+				if (player.getPlayerState() == 2 || player.getPlayerState() == -1) {
+					playVideo();
+				}
+				else {
+					pauseVideo();
+				}
+			});
+
+			function playVideo() {
+		    	player.playVideo();
+		    }
+
+		    function pauseVideo() {
+		    	player.pauseVideo();
+		    }
+
+		    function stopVideo() {
+		    	player.stopVideo();
+		    }
+
+			function switchSong(videoId) {
+		    	_("progressbar").value = 0;
+		    	player.loadVideoById(videoId, 0, "small");
+		    }
+
+		    function volume_tooltip() {
+				player.setVolume(_("volume").value);
+			}
+
+			function calculateTime(s) {
+				sec = pad(Math.floor(s % 60));
+				min = pad(Math.floor(s / 60) % 60);
+				return min + ":" + sec;
+			}
+
+			function pad(num, size) {
+				var s = String(num);
+				while (s.length < (size || 2)) {
+					 s = '0' + s;
+				}
+				return s;
+			}
+
+			$(document).ready(function(){
+				$(".form-control").focus();
+
+				$body = $("body");
+				$(document).on({
+				    ajaxStart: function() { $body.addClass("loading"); },
+				    ajaxStop: function() { $body.removeClass("loading"); }    
+				});
+
+				$("#searchField").submit(function(event){
+					event.preventDefault();
+					var keyWords = $(this).find('input[name="key_words"]').val();
+
+					$.ajax({
+						type: "POST",
+						url: "/result",
+						cache: false,
+						data: "key_words=" + keyWords,
+						success: function(data) {
+							$('#content').html(data);
+						}
+					});
+				});
+
+				$(document).on("click", ".song_artist a",function(event){
+					event.preventDefault();
+					var artist = $(this).attr("attr-artist-name");
+
+					$.ajax({
+						type: "POST",
+						url: "/artist",
+						cache: false,
+						data: "artist_name=" + artist,
+						success: function(data) {
+							var array = data.split("<CCYK>");
+							$('#content').html(array[1]);
+							$('#artistTitle').css("background-image","url("+ array[0] +")");
+						}
+					});
+				});
+			});
+		</script>
+	</body>
+</html>
