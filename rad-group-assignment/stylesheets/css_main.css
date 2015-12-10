@@ -346,20 +346,15 @@ a:hover{
 
 #play{
 	display: block; 
-	width: 30px; 
-	height: 35px;
-	top: -8px;
+	width: 40px; 
+	height: 40px;
+	top: -10px;
 	position: relative;
-	background: url(/pics/icons/play.png) no-repeat;
-	background-size: 30px 35px;
+	background: url(/pics/icons/play_grey.png) no-repeat;
+	background-size: 40px 40px;
 	border: none; 
 	cursor: pointer; 
 	outline: none;
-}
-
-#play:hover{
-	background: url(/pics/icons/play.png) no-repeat;
-	background-size: 30px 35px;
 }
 
 #next{
@@ -471,7 +466,7 @@ a:hover{
 	top: -5px;
 	position:relative;
 	margin-left: 10px;
-	background: url(/pics/icons/repeat_grey.png) no-repeat;
+	background: url(/pics/icons/loop_one_grey.png) no-repeat;
 	background-size: 30px 30px;
 	border: none; 
 	cursor: pointer; 
@@ -479,7 +474,7 @@ a:hover{
 }
 
 #loop_one:hover{
-	background: url(/pics/icons/repeat.png) no-repeat;
+	background: url(/pics/icons/loop_one.png) no-repeat;
 	background-size: 30px 30px;
 }
 
@@ -514,11 +509,28 @@ a:hover{
 	width: 19px; 
 	height: 22px; 
 	margin: 1px 0px 0px 14px;
-	background: url(/pics/icons/play.png) no-repeat;
+	background: url(/pics/icons/play_v1.png) no-repeat;
 	background-size: 19px 22px;
 	border: none; 
 	cursor: pointer; 
 	outline: none; 
+}
+
+.play:hover{
+	background: url(/pics/icons/play_v1.png) no-repeat;
+	background-size: 19px 22px;
+}
+
+.add{
+	display: block; 
+	float: left; 
+	width: 25px; 
+	height: 25px; 
+	background: url(/pics/icons/plus.png) no-repeat;
+	background-size: 25px 25px;
+	border: none; 
+	cursor: pointer; 
+	outline: none;
 }
 
 #ajax_layer{
