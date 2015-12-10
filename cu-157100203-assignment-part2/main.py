@@ -26,8 +26,8 @@ youtube_api_key = 'AIzaSyB1r0jX4KJj7Hw9NdzsEigrxRbv-Obd3Uw'
 youtube_search_part = 'snippet'
 youtube_search_query = ''
 youtube_search_type = 'video'
-youtube_search_order = 'viewCount'
-youtube_search_maxResult = '10'
+youtube_search_order = 'relevance'
+youtube_search_maxResult = '1'
 youtube_next_page_token = None
 youtube_prev_page_token = None
 page_token = None
@@ -243,7 +243,7 @@ class AjaxHandler(webapp2.RequestHandler):
                 youtube_video_id = youtube_video_list[x]['id']['videoId']
                 youtube_video_detail = youtube_video_list[x]['snippet']
                 youtube_video_title = youtube_video_detail['title']
-                youtube_video_thumbnails = youtube_video_detail['thumbnails']['high']['url']
+                youtube_video_thumbnails = youtube_video_detail['thumbnails']['medium']['url']
                 youtube_videos_json = {}
                 youtube_videos_json['id'] = youtube_video_id
                 youtube_videos_json['title'] = youtube_video_title
@@ -253,7 +253,6 @@ class AjaxHandler(webapp2.RequestHandler):
             youtube_videos['next_page'] = youtube_next_page_token
             youtube_videos['prev_page'] = youtube_prev_page_token
 
-            # main_html = jinja_environment.get_template('main.html')
             self.response.out.write(cgi.escape(json.dumps(youtube_videos)))
         except urllib2.URLError, e:
             msg_error = e

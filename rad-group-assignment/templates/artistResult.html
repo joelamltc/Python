@@ -1,0 +1,46 @@
+{{artistImage}}<CCYK>
+<div id="artistTitle">
+	<div id="artistDetail">
+		<div id="artistName">
+			{{ artistName }}
+		</div>
+		<div id="artistDescription">
+			{{ artistInfo }}
+		</div>
+	</div>
+</div>
+
+<div id="artistResultContainer">
+	{% for albumDetail in Albums %}
+	<div class="albumDetail">
+		<img src="{{ albumDetail.album.image }}">
+		<div class="albumName">
+			{{ albumDetail.album.albumName }}
+		</div>
+		<div class="albumDescription">
+			{{ albumDetail.album.summary }}
+		</div>
+	</div>
+	<div class="recordHeader">
+		<div class="trackHeader">
+			SONG
+		</div>
+	</div>
+	{% for track in albumDetail.album.tracks %}
+	<div class="record">
+		<div class="button_play">
+			<button class="play" type="button" attr-query="{{ track.query }}"></button>
+		</div>
+
+		<div class="button_add">
+			<button class="add" type="button">Add</button>
+		</div>
+
+		<div class="trackName">
+			{{track.name}}
+		</div>
+	</div>
+	{% endfor %}
+	<div class='split'></div>
+	{% endfor %}
+</div>
