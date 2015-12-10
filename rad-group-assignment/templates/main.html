@@ -56,7 +56,7 @@
 			</div>
 			<div id="volumebar">
 				<div>
-					<img id="mute" src="/pics/icons/music.png" height="22px" width="19px"></img>
+					<img id="mute" src="/pics/icons/sound.png" height="22px" width="22px"></img>
 				</div>
 				<div>
 					<input type="range" name="volume" id="volume" value="100" max="100" min="0" oninput="volume_tooltip()">
@@ -100,7 +100,7 @@
     					}
     				});
     				$("#play").css("background", "url(pics/icons/pause.png)");
-    				$("#play").css("background-size", "30px 35px");
+    				$("#play").css("background-size", "40px 40px");
       				var playerTotalTime = Math.round(player.getDuration());
       				_("progressbar").max = playerTotalTime;
       				$("#totaltime").html(calculateTime(playerTotalTime));
@@ -114,12 +114,12 @@
     				clearTimeout(timer);
     				$(".play").each(function() {
     					if ($(this).attr('attr-query') == $("#playing_query").val() && $(this).attr('id') == $("#playing_track").val()) {
-    						$(this).css("background", "url(pics/icons/play.png)");
+    						$(this).css("background", "url(pics/icons/play_v1.png)");
     						$(this).css("background-size", "19px 22px");
     					}
     				});
-    				$("#play").css("background", "url(pics/icons/play.png)");
-    				$("#play").css("background-size", "30px 35px");
+    				$("#play").css("background", "url(pics/icons/play_grey.png)");
+    				$("#play").css("background-size", "40px 40px");
     				if (loop_one) {
     					switchSong($("#playing_track").val());
     				}
@@ -127,23 +127,23 @@
     			else if (event.data == YT.PlayerState.PAUSED) {	
     				$(".play").each(function() {
     					if ($(this).attr('attr-query') == $("#playing_query").val() && $(this).attr('id') == $("#playing_track").val()) {
-    						$(this).css("background", "url(pics/icons/play.png)");
+    						$(this).css("background", "url(pics/icons/play_v1.png)");
     						$(this).css("background-size", "19px 22px");
     					}
     				});
     				$("#play").css("background", "url(pics/icons/play.png)");
-    				$("#play").css("background-size", "30px 35px");
+    				$("#play").css("background-size", "40px 40px");
     			}
     			else if (event.data == -1) {
     				clearTimeout(timer);
     				$(".play").each(function() {
     					if ($(this).attr('attr-query') == $("#playing_query").val() && $(this).attr('id') == $("#playing_track").val()) {
-    						$(this).css("background", "url(pics/icons/play.png)");
+    						$(this).css("background", "url(pics/icons/play_v1.png)");
     						$(this).css("background-size", "19px 22px");
     					}
     				});
-    				$("#play").css("background", "url(pics/icons/play.png)");
-    				$("#play").css("background-size", "30px 35px");
+    				$("#play").css("background", "url(pics/icons/play_grey.png)");
+    				$("#play").css("background-size", "40px 40px");
     			}
     			else {
     				clearTimeout(timer);	
@@ -176,7 +176,7 @@
 								switchSong(videoId);
 								$("#playing_track").val(videoId);
 								$("#playing_query").val(query);
-								$(".play").css("background", "url(pics/icons/play.png)");
+								$(".play").css("background", "url(pics/icons/play_v1.png)");
 								$(".play").css("background-size", "19px 22px");
 								playbutton.css("background", "url(pics/icons/pause.png)");
 								playbutton.css("background-size", "19px 22px");
@@ -196,7 +196,7 @@
 							switchSong(videoId);
 							$("#playing_track").val(videoId);
 							$("#playing_query").val(query);
-							$(".play").css("background", "url(pics/icons/play.png)");
+							$(".play").css("background", "url(pics/icons/play_v1.png)");
 							$(".play").css("background-size", "19px 22px");
 							playbutton.css("background", "url(pics/icons/pause.png)");
 							playbutton.css("background-size", "19px 22px");
@@ -221,16 +221,18 @@
 			});
 
 			$("#hide").click(function() {
-				var height = $(window).height() - 74 - 60;
+				var height = $(window).height() - 75 - 60;
 				if ($("#player").is(":visible")) {
-					$("#player").hide();
-					$(".lyrics").css("height", height + "px");
+					$("#player").fadeOut(function() {
+						$(".lyrics").animate({height : height + "px"});
+					});
 					$(this).css("background", "url(/pics/icons/mini.png)");
 					$(this).css("background-size", "20px 20px");
 				}
 				else {
-					$(".lyrics").css("height", (height - 285) + "px");
-					$("#player").show();
+					$(".lyrics").animate({height : (height - 285) + "px"}, function() {
+						$("#player").fadeIn();
+					});
 					$(this).css("background", "url(/pics/icons/mini_grey.png)");
 					$(this).css("background-size", "20px 20px");
 				}
@@ -239,13 +241,13 @@
 			$("#mute").click(function() {
 				var volume = $("#volume").val();
 				if (volume > 0) {
-					$(this).attr("src", "/pics/icons/music_grey.png");
+					$(this).attr("src", "/pics/icons/mute.png");
 					$(this).attr("data-vol", volume);
 					player.mute();						
 					$("#volume").val(0);
 				}
 				else {
-					$(this).attr("src", "/pics/icons/music.png");
+					$(this).attr("src", "/pics/icons/sound.png");
 					player.unMute();
 					$("#volume").val($(this).attr("data-vol"));
 				}
@@ -254,18 +256,18 @@
 			$("#loop_one").click(function() {
 				if (loop_one) {
 					loop_one = false;
-					$(this).css("background", "url(/pics/icons/repeat_grey.png)");
+					$(this).css("background", "url(/pics/icons/loop_one_grey.png)");
 					$(this).css("background-size", "30px 30px");
 				}
 				else {
 					loop_one = true;
-					$(this).css("background", "url(/pics/icons/repeat.png)");
+					$(this).css("background", "url(/pics/icons/loop_one.png)");
 					$(this).css("background-size", "30px 30px");
 				}
 			});
 
 			$("#play").click(function() {
-				if (player.getPlayerState() == 2 || player.getPlayerState() == -1) {
+				if (player.getPlayerState() == 2 || player.getPlayerState() == -1 || player.getPlayerState() == 0) {
 					playVideo();
 				}
 				else {
