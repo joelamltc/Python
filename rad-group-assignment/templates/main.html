@@ -25,13 +25,19 @@
 			</div>
 		</div>
 		<div class="play_list">
-			<div class="small_icon">icon</div>
-			<div class="playlist_name">playlist</div>
+			<div id="playlist_header">PLSYLISTS</div>
+			<div id="playlist_container">
+				<div class="suggestlist">
+					<div class="playlist_icon"><img src="/pics/icons/music_grey.png" height="20px"></div>
+					<div class="playlist_name"><a>Suggested List</a></div>
+				</div>
+			</div>
 		</div>
 		<div id="content"></div>
 		<div id="player"></div>
 		<div class="lyrics"></div>
 		<div class="clear"></div>
+		<div id="add_playlist">New Playlist</div>
 		<div id="display_playing_track"></div>
 		<div class="player_contorller">
 			<div id="controls">
@@ -151,28 +157,90 @@
   			}
 
   			$(document).on("click", ".play", function() {
-				var query = $(this).attr("attr-query");
+  				var query = $(this).attr("attr-query");
+  				var id = $(this).attr("id");
 				var playbutton = $(this);
-				$.ajax({
-					type: "POST",
-					url: "/searchYoutube",
-					cache: false,
-					data: "query=" + query,
-					success: function(data) {
-						var result = data.split('<joelamltc>');
-						videoId = result[0];
-						playbutton.attr("id", videoId);
+				var player_video_id = (typeof player.getVideoData().video_id === 'undefined') ? '' : player.getVideoData().video_id;
 
-						player_video_id = (typeof player.getVideoData().video_id === 'undefined') ? '' : player.getVideoData().video_id;
-						if (player_video_id == videoId && query == $("#playing_query").val()) {
-							// player state
-							// -1 – unstarted
-							// 0 – ended
-							// 1 – playing
-							// 2 – paused
-							// 3 – buffering
-							// 5 – video cued
-							if (player.getPlayerState() == -1 || player.getPlayerState() == 5 || player.getPlayerState() == 0) {
+  				if (id) {
+  					if (player_video_id == id && query == $("#playing_query").val()) {
+						// player state
+						// -1 – unstarted
+						// 0 – ended
+						// 1 – playing
+						// 2 – paused
+						// 3 – buffering
+						// 5 – video cued
+						if (player.getPlayerState() == -1 || player.getPlayerState() == 5 || player.getPlayerState() == 0) {
+							switchSong(id);
+							$("#playing_track").val(id);
+							$("#playing_query").val(query);
+							$(".play").css("background", "url(pics/icons/play_v1.png)");
+							$(".play").css("background-size", "19px 22px");
+							playbutton.css("background", "url(pics/icons/pause.png)");
+							playbutton.css("background-size", "19px 22px");
+						}
+						else if (player.getPlayerState() == 2) {
+							playVideo();
+							playbutton.css("background", "url(pics/icons/pause.png)");
+							playbutton.css("background-size", "19px 22px");
+						}
+						else {
+							pauseVideo();
+							playbutton.css("background", "url(pics/icons/play.png)");
+							playbutton.css("background-size", "19px 22px");
+						}
+					}
+					else {
+						switchSong(id);
+						$("#playing_track").val(id);
+						$("#playing_query").val(query);
+						$(".play").css("background", "url(pics/icons/play_v1.png)");
+						$(".play").css("background-size", "19px 22px");
+						playbutton.css("background", "url(pics/icons/pause.png)");
+						playbutton.css("background-size", "19px 22px");
+					}
+  				}
+  				else {
+					$.ajax({
+						type: "POST",
+						url: "/searchYoutube",
+						cache: false,
+						data: "query=" + query,
+						success: function(data) {
+							var result = data.split('<joelamltc>');
+							var videoId = result[0];
+							playbutton.attr("id", videoId);
+
+							if (player_video_id == videoId && query == $("#playing_query").val()) {
+								// player state
+								// -1 – unstarted
+								// 0 – ended
+								// 1 – playing
+								// 2 – paused
+								// 3 – buffering
+								// 5 – video cued
+								if (player.getPlayerState() == -1 || player.getPlayerState() == 5 || player.getPlayerState() == 0) {
+									switchSong(videoId);
+									$("#playing_track").val(videoId);
+									$("#playing_query").val(query);
+									$(".play").css("background", "url(pics/icons/play_v1.png)");
+									$(".play").css("background-size", "19px 22px");
+									playbutton.css("background", "url(pics/icons/pause.png)");
+									playbutton.css("background-size", "19px 22px");
+								}
+								else if (player.getPlayerState() == 2) {
+									playVideo();
+									playbutton.css("background", "url(pics/icons/pause.png)");
+									playbutton.css("background-size", "19px 22px");
+								}
+								else {
+									pauseVideo();
+									playbutton.css("background", "url(pics/icons/play.png)");
+									playbutton.css("background-size", "19px 22px");
+								}
+							}
+							else {
 								switchSong(videoId);
 								$("#playing_track").val(videoId);
 								$("#playing_query").val(query);
@@ -181,37 +249,16 @@
 								playbutton.css("background", "url(pics/icons/pause.png)");
 								playbutton.css("background-size", "19px 22px");
 							}
-							else if (player.getPlayerState() == 2) {
-								playVideo();
-								playbutton.css("background", "url(pics/icons/pause.png)");
-								playbutton.css("background-size", "19px 22px");
+
+							lyricsSplit = result[2].split("\n");
+							lyrics = '';
+							for (var i = 0; i < lyricsSplit.length; i++) {
+								lyrics += lyricsSplit[i] + "<br>";
 							}
-							else {
-								pauseVideo();
-								playbutton.css("background", "url(pics/icons/play.png)");
-								playbutton.css("background-size", "19px 22px");
-							}
+							$("div.lyrics").html(lyrics);
 						}
-						else {
-							switchSong(videoId);
-							$("#playing_track").val(videoId);
-							$("#playing_query").val(query);
-							$(".play").css("background", "url(pics/icons/play_v1.png)");
-							$(".play").css("background-size", "19px 22px");
-							playbutton.css("background", "url(pics/icons/pause.png)");
-							playbutton.css("background-size", "19px 22px");
-						}
-
-
-
-						lyricsSplit = result[2].split("\n");
-						lyrics = '';
-						for (var i = 0; i < lyricsSplit.length; i++) {
-							lyrics += lyricsSplit[i] + "<br>";
-						}
-						$("div.lyrics").html(lyrics);
-					}
-				});
+					});
+				}
 			});
 			
 			$("#progressbar").mouseup(function() {
@@ -312,8 +359,8 @@
 
 			$(document).ready(function(){
 				$(".form-control").focus();
-
 				$body = $("body");
+
 				$(document).on({
 				    ajaxStart: function() { $body.addClass("loading"); },
 				    ajaxStop: function() { $body.removeClass("loading"); }    
