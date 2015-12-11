@@ -55,17 +55,38 @@ a:hover{
 }
 
 .play_list{
-	padding:15px 0px 0px 10px;
 	width:200px;
-	height: calc(100% - 73px - 60px - 4px - 60px);
+	height: calc(100% - 73px - 60px - 5px - 60px - 60px);
 	float: left;
-	text-align: center;
 	border-right: 1px solid #272727;
 	background-color: #272727;
 	margin-top: 1px;
 }
 
-.small_icon{
+#playlist_header{
+	float: left;
+	padding: 5px 0px 0px 10px;
+	font-size: 18px;
+	width: 200px;
+	height: 40px;
+}
+
+#playlist_container{
+	float: left;
+	width: 200px;
+	height: calc(100% - 40px);
+	overflow: scroll;
+}
+
+.playlist_content{
+	float: left;
+	height:30px;
+	width: 200px;
+}
+
+.playlist_icon{
+	padding-left: 15px;
+	margin-right: 10px;
 	float:left;
 	width:30px;
 	height:30px;
@@ -297,12 +318,21 @@ a:hover{
 	clear: both;
 }
 
-#display_playing_track{
+#add_playlist{
 	height: 60px;
 	width: 200px;
 	position: relative;
 	float: left;
-	bottom: 60px;
+	bottom: 121px;
+	background-color: #272727;
+}
+
+#display_playing_track{
+	height: 60px;
+	width: 200px;
+	position: absolute;
+	float: left;
+	bottom: 61px;
 	background-color: #272727;
 }
 
