@@ -22,6 +22,8 @@ import cgi
 import jinja2
 import os
 import logging
+from google.appengine.ext import ndb
+from google.appengine.api import users
 
 JINJA_ENVIRONMENT = jinja2.Environment(
 	loader=jinja2.FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templates')),
@@ -29,8 +31,49 @@ JINJA_ENVIRONMENT = jinja2.Environment(
 
 class MainHandler(webapp2.RequestHandler):
 	def get(self):
-		template = JINJA_ENVIRONMENT.get_template('main.html')
-		self.response.write(template.render())
+		user = users.get_current_user()
+		if user:
+			username = user.nickname()
+			url = users.create_logout_url(self.request.path)
+			playlist_template = ''
+			select_playlist_template = ''
+
+			if( User.userQuery(user.email()).count() == 0 ):
+				data 	= User(email = user.email() ,userName = username, id = user.email())
+				userKey = data.put()
+			else:
+				userDatas = User.userQuery(user.email())
+				for userData in userDatas:
+					userKey = userData.key
+
+				PlaylistDatas = Playlist.query(ancestor = userKey).order(+Playlist.date)
+
+				if( PlaylistDatas.count() > 0 ):
+					for PlaylistData in PlaylistDatas:
+						playlist_template += '''
+							<div class="playlist_content">
+								<div class="playlist_icon"><img src="/pics/icons/music_grey.png" height="20px"></div>
+								<div class="playlist_name" attr-playlist-id="%s"><a href="#">%s</a></div>
+							</div>
+						''' % (PlaylistData.key.id(), PlaylistData.name)
+
+						select_playlist_template += '''
+							<div class="select_playlist_content">
+								<div class="select_playlist_name"><a href="#" class="select_playlist" attr-playlist-id="%s">%s</a></div>
+							</div>
+						''' % (PlaylistData.key.id(), PlaylistData.name)
+
+			template = JINJA_ENVIRONMENT.get_template('main.html')
+			template_values = {
+				'userNickname'				: username,
+				'logout_url'				: url,
+				'playlist_template' 		: playlist_template,
+				'select_playlist_template' 	: select_playlist_template
+			}
+			self.response.write(template.render(template_values))
+		else:
+			url = users.create_login_url(self.request.uri)
+			self.redirect(url)
 
 class SearchArtistHandler(webapp2.RequestHandler):
 	def post(self):
@@ -143,15 +186,116 @@ class SearchYoutube(webapp2.RequestHandler):
 			else:
 				musixmatch_lyrics = 'No lyrics found.'
 
-			result = '%s<joelamltc>%s<joelamltc>%s' % (youtube_video_id, youtube_video_thumbnail, musixmatch_lyrics)
+			result = '%s<joelamltc>%s<joelamltc>%s' % (youtube_video_id, cgi.escape(youtube_video_thumbnail), musixmatch_lyrics)
 			self.response.write(result)
 		except urllib2.URLError, e:
 			msg_error = e
 		self.response.write(msg_error)
 
+class PlaylistHandler(webapp2.RequestHandler):
+	def post(self):
+		user = users.get_current_user()
+		data = self.request.get('data')
+		action = self.request.get('action')
+
+		if data and action == 'addPlaylist':
+			playlist_key = Playlist(name = data, parent = User.getUserKey(user.email())).put()
+			playlist_template = '''
+				<div class="playlist_content">
+					<div class="playlist_icon"><img src="/pics/icons/music_grey.png" height="20px"></div>
+					<div class="playlist_name" attr-playlist-id="%s"><a href="#">%s</a></div>
+				</div>
+			''' % (playlist_key.id(), data)
+
+			select_playlist_template = '''
+							<div class="select_playlist_content">
+								<div class="select_playlist_name"><a href="#" class="select_playlist" attr-playlist-id="%s">%s</a></div>
+							</div>
+						''' % (playlist_key.id(), data)
+			self.response.write(playlist_template + '<joelamltc>' + select_playlist_template)
+
+		elif data and action == 'displayPlaylistDetail':
+			name = self.request.get('name')
+			playlistDetail = PlaylistDetail.query(ancestor = Playlist.getPlaylistKey('User', user.email(), data)).order(+PlaylistDetail.date)
+			tracks = []
+			for track in playlistDetail:
+				query = "%s %s" % (track.artist, track.track)
+				tracks.append({'track': track.track, 'artist': track.artist, 'query': urllib2.quote(query.encode('utf-8')), 
+					'artistQuery': urllib2.quote(track.artist.encode('utf-8')), 'video_id': track.videoID, 'track_id': track.key.id(), 
+					'thumbnail': cgi.escape(track.thumbnail)})
+			template_values = {
+				'results': tracks,
+				'name': name,
+				'playlist_id': data
+			}
+			template = JINJA_ENVIRONMENT.get_template('playlistDetail.html')
+			self.response.write(template.render(template_values))
+
+		elif data and action == 'deletePlaylist':
+			playlist_key = Playlist.getPlaylistKey('User', user.email(), data)
+			playlistdetail = PlaylistDetail.query(ancestor = playlist_key)
+			for track in playlistdetail:
+				track.key.delete()
+			playlist_key.delete()
+			self.response.write(data)
+
+		elif data and action == 'addTrackToPlaylist':
+			playlist_key = Playlist.getPlaylistKey('User', user.email(), data)
+			video_id = self.request.get('video_id')
+			track = self.request.get('track_name')
+			artist = self.request.get('track_artist')
+			thumbnail = self.request.get('thumbnail')
+			PlaylistDetail(videoID = video_id, track = track, artist = artist, thumbnail = thumbnail, parent = playlist_key).put()
+			self.response.write(data)
+
+		elif data and action == 'deleteTrack':
+			playlist_id = self.request.get('playlist')
+			PlaylistDetail.getTrackKey('User', user.email(), 'Playlist', playlist_id, data).delete()
+			self.response.write(data)
+
+class User(ndb.Model):
+	email		= ndb.StringProperty()
+	userName	= ndb.StringProperty()
+	date 		= ndb.DateTimeProperty(auto_now_add = True)
+
+	@classmethod
+	def userQuery(cls, userEmail):
+		return cls.query(cls.email == userEmail)
+
+	@classmethod
+	def getUserKey(cls, email):
+		return ndb.Key(cls, email)
+
+class Playlist(ndb.Model):
+	name		= ndb.StringProperty()
+	date        = ndb.DateTimeProperty(auto_now_add = True)
+
+	@classmethod
+	def getPlaylistKey(cls, userKind, email, trackid):
+		return ndb.Key(userKind, email, cls, int(trackid))
+
+class PlaylistDetail(ndb.Model):
+	videoID		= ndb.StringProperty()
+	track		= ndb.StringProperty()
+	artist 		= ndb.StringProperty()
+	thumbnail   = ndb.StringProperty()
+	date        = ndb.DateTimeProperty(auto_now_add = True)
+
+	@classmethod
+	def getTrackKey(cls, userKind, email, playlistKind, playlistid, trackid):
+		return ndb.Key(userKind, email, playlistKind, int(playlistid), cls, int(trackid))
+
+class SuggestionPlaylist(ndb.Model):
+	videoID		= ndb.StringProperty()
+	track		= ndb.StringProperty()
+	artist 		= ndb.StringProperty()
+	thumbnail   = ndb.StringProperty()
+	date 		= ndb.DateTimeProperty(auto_now_add = True)
+
 app = webapp2.WSGIApplication([
 	('/', MainHandler),
 	('/result', SearchTrackHandler),
 	('/artist', SearchArtistHandler),
+	('/playlist', PlaylistHandler),
 	('/searchYoutube', SearchYoutube)
 ], debug=True)

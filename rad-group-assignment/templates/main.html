@@ -8,36 +8,50 @@
 		<link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
 		<link rel="stylesheet" type="text/css" href="/css/css_main.css">
 		<link rel="stylesheet" type="text/css" href="/css/slider.css">
-		<link rel="icon shortcut" href="/pics/icons/wplogo_bw.png">
+		<link rel="icon shortcut" href="/pics/icons/wp_icon_withouttext.png">
 	</head>
 	<body>
 		<div id="search_bar">
-			<div id="logo"><img src="/pics/icons/wplogo_bw.png" height="74px"></div>
+			<div id="logo"><img src="/pics/icons/wp_logo.png" height="55px"></div>
 			<div id="search">
 				<form id="searchField" action="/result" method="get">
 					<input type="text" class="form-control" name="key_words" placeholder="Search">
 				</form>
 				<input type="hidden" id="playing_track" name="playing_track" value="">
-				<input type="hidden" id="playing_query" name="playing_query" value="">	
+				<input type="hidden" id="playing_query" name="playing_query" value="">
+				<input type="hidden" id="selected_track" name="selected_track" value="">
+				<input type="hidden" id="selected_track_thumbnail" name="selected_track_thumbnail" value="">
 			</div>
 			<div id="user">
-				Welcome, CCYK
+				Welcome, {{userNickname}} <a href="{{logout_url}}">Logout</a>
 			</div>
 		</div>
 		<div class="play_list">
-			<div id="playlist_header">PLSYLISTS</div>
+			<div id="playlist_header">PLAYLISTS</div>
 			<div id="playlist_container">
 				<div class="suggestlist">
 					<div class="playlist_icon"><img src="/pics/icons/music_grey.png" height="20px"></div>
-					<div class="playlist_name"><a>Suggested List</a></div>
+					<div class="playlist_name"><a href="#">Suggested List</a></div>
 				</div>
+				{{playlist_template}}
 			</div>
 		</div>
 		<div id="content"></div>
+		<div id="select_playlist">
+			<div class="select_playlist_title">Select Playlist</div>
+			{{select_playlist_template}}
+		</div>
 		<div id="player"></div>
 		<div class="lyrics"></div>
 		<div class="clear"></div>
-		<div id="add_playlist">New Playlist</div>
+		<div id="add_playlist">
+			<img src="/pics/icons/plus_circle_grey.png" height="40px">
+			New Playlist
+		</div>
+		<div id="new_playlist_name">
+			<input type="text" id="playlist_name_field" placeholder="    Playlist name">
+			<button type="button" id="submit_playlist_name">Create</button>
+		</div>
 		<div id="display_playing_track"></div>
 		<div class="player_contorller">
 			<div id="controls">
@@ -120,7 +134,7 @@
     				clearTimeout(timer);
     				$(".play").each(function() {
     					if ($(this).attr('attr-query') == $("#playing_query").val() && $(this).attr('id') == $("#playing_track").val()) {
-    						$(this).css("background", "url(pics/icons/play_v1.png)");
+    						$(this).css("background", "url(pics/icons/play_v1_grey.png)");
     						$(this).css("background-size", "19px 22px");
     					}
     				});
@@ -144,7 +158,7 @@
     				clearTimeout(timer);
     				$(".play").each(function() {
     					if ($(this).attr('attr-query') == $("#playing_query").val() && $(this).attr('id') == $("#playing_track").val()) {
-    						$(this).css("background", "url(pics/icons/play_v1.png)");
+    						$(this).css("background", "url(pics/icons/play_v1_grey.png)");
     						$(this).css("background-size", "19px 22px");
     					}
     				});
@@ -175,7 +189,7 @@
 							switchSong(id);
 							$("#playing_track").val(id);
 							$("#playing_query").val(query);
-							$(".play").css("background", "url(pics/icons/play_v1.png)");
+							$(".play").css("background", "url(pics/icons/play_v1_grey.png)");
 							$(".play").css("background-size", "19px 22px");
 							playbutton.css("background", "url(pics/icons/pause.png)");
 							playbutton.css("background-size", "19px 22px");
@@ -187,7 +201,7 @@
 						}
 						else {
 							pauseVideo();
-							playbutton.css("background", "url(pics/icons/play.png)");
+							playbutton.css("background", "url(pics/icons/play_v1.png)");
 							playbutton.css("background-size", "19px 22px");
 						}
 					}
@@ -195,7 +209,7 @@
 						switchSong(id);
 						$("#playing_track").val(id);
 						$("#playing_query").val(query);
-						$(".play").css("background", "url(pics/icons/play_v1.png)");
+						$(".play").css("background", "url(pics/icons/play_v1_grey.png)");
 						$(".play").css("background-size", "19px 22px");
 						playbutton.css("background", "url(pics/icons/pause.png)");
 						playbutton.css("background-size", "19px 22px");
@@ -210,6 +224,8 @@
 						success: function(data) {
 							var result = data.split('<joelamltc>');
 							var videoId = result[0];
+							var thumbnail = result[1];
+							playbutton.attr("attr-thumbnail", thumbnail)
 							playbutton.attr("id", videoId);
 
 							if (player_video_id == videoId && query == $("#playing_query").val()) {
@@ -224,7 +240,8 @@
 									switchSong(videoId);
 									$("#playing_track").val(videoId);
 									$("#playing_query").val(query);
-									$(".play").css("background", "url(pics/icons/play_v1.png)");
+									$("#selected_track_thumbnail").val(thumbnail);
+									$(".play").css("background", "url(pics/icons/play_v1_grey.png)");
 									$(".play").css("background-size", "19px 22px");
 									playbutton.css("background", "url(pics/icons/pause.png)");
 									playbutton.css("background-size", "19px 22px");
@@ -236,7 +253,7 @@
 								}
 								else {
 									pauseVideo();
-									playbutton.css("background", "url(pics/icons/play.png)");
+									playbutton.css("background", "url(pics/icons/play_v1.png)");
 									playbutton.css("background-size", "19px 22px");
 								}
 							}
@@ -244,7 +261,8 @@
 								switchSong(videoId);
 								$("#playing_track").val(videoId);
 								$("#playing_query").val(query);
-								$(".play").css("background", "url(pics/icons/play_v1.png)");
+								$("#selected_track_thumbnail").val(thumbnail);
+								$(".play").css("background", "url(pics/icons/play_v1_grey.png)");
 								$(".play").css("background-size", "19px 22px");
 								playbutton.css("background", "url(pics/icons/pause.png)");
 								playbutton.css("background-size", "19px 22px");
@@ -376,7 +394,8 @@
 						cache: false,
 						data: "key_words=" + keyWords,
 						success: function(data) {
-							$('#content').html(data);
+							$('#content').html(data).hide();
+							$('#content').fadeIn(1000);
 						}
 					});
 				});
@@ -392,10 +411,216 @@
 						data: "artist_name=" + artist,
 						success: function(data) {
 							var array = data.split("<CCYK>");
-							$('#content').html(array[1]);
+							$('#content').html(array[1]).hide();
 							$('#artistTitle').css("background-image","url("+ array[0] +")");
+							$('#content').fadeIn(1000);
 						}
 					});
+				});
+
+				$("#add_playlist").mouseover(function() {
+					$(this).css("color", "#1DD760");
+					$(this).find("img").attr("src", "/pics/icons/plus_circle.png");
+				}).mouseout(function() {
+					$(this).css("color", "#FFFAFA");
+					$(this).find("img").attr("src", "/pics/icons/plus_circle_grey.png");
+				});
+
+				$(document).on("mouseover", ".playlist_content, .suggestlist", function() {
+					$(this).find(".playlist_icon > img").attr("src", "/pics/icons/music.png");
+				}).mouseout(function() {
+					$(this).find(".playlist_icon > img").attr("src", "/pics/icons/music_grey.png");
+				});
+
+				$(".suggestlist").click(function(event) {
+					event.preventDefault();
+				});
+
+				$("#add_playlist").click(function() {
+					if ($("#new_playlist_name").is(":visible")) {
+						$("#new_playlist_name").fadeOut();
+					}
+					else {
+						$("#new_playlist_name").fadeIn(function() {
+							$("#playlist_name_field").focus();
+						});
+					}
+				});
+
+				$("#submit_playlist_name").click(function() {
+					var playlist_name = $("#playlist_name_field").val();
+					if (playlist_name != '') {
+						$.ajax({
+							type: "POST",
+							url: "/playlist",
+							cache: false,
+							data: "action=addPlaylist&data=" + playlist_name,
+							success: function(data) {
+								var template = data.split("<joelamltc>");
+								var playlist = $("#playlist_container div:last").parent().attr("class");
+								var select_playlist = $("#select_playlist div:last");
+
+								if (playlist == "playlist_content") {
+									$("#playlist_container div.playlist_content:last").after(template[0]);
+								}
+								else if (playlist == "suggestlist") {
+									$("#playlist_container div.suggestlist:last").after(template[0]);
+								}
+
+								if (select_playlist.attr("class") == "select_playlist_title") {
+									var select_playlist = $("#select_playlist div:last").after(template[1]);
+								}
+								else {
+									var select_playlist = $("#select_playlist div.select_playlist_content:last").after(template[1]);
+								}
+
+								$("#playlist_container").scrollTop($("#playlist_container").height());
+								$("#playlist_container div.playlist_content:last").hide().fadeIn(1000);
+								$("#select_playlist div.select_playlist_content:last").hide().fadeIn(1000);
+								$("#playlist_name_field").val("");
+								$("#new_playlist_name").fadeOut();
+							}
+						});	
+					}
+				})
+
+				$(document).on("click", ".playlist_content", function(event) {
+					event.preventDefault();
+					var playlist_id = $(this).find(".playlist_name").attr("attr-playlist-id");
+					var name = $(this).find(".playlist_name a").html();
+					$.ajax({
+						type: "POST",
+						url: "/playlist",
+						cache: false,
+						data: "action=displayPlaylistDetail&data=" + playlist_id + "&name=" + name,
+						success: function(data) {
+							$("#content").html(data).hide();
+							$("#content").fadeIn(1000);
+						}
+					});
+				});
+
+				$(document).on("click", "#delete_playlist", function() {
+					var name = $.trim($(this).closest("#title").text());
+					if (confirm("Are you sure to delete the PLAYLIST \""+ name +"\"?")) {
+						var playlist_id = $(this).attr("attr-id");
+						$.ajax({
+							type: "POST",
+							url: "/playlist",
+							cache: false,
+							data: "action=deletePlaylist&data=" + playlist_id,
+							success: function(data) {
+								$("#content").children().fadeOut(1000, function() {
+									$("#content").empty();
+								});
+								$("div[attr-playlist-id="+ data +"]").closest(".playlist_content").fadeOut(1000, function() {
+									$(this).remove();
+								});
+							}
+						});
+					}
+				});
+
+				$("#select_playlist").focusout(function () {
+				    setTimeout(function(){
+				    	var focus = $(document.activeElement);
+				    	if (focus.is("#select_playlist") || $('#select_playlist').has(focus).length) {
+				    		// console.log("still focused");
+				        } else {
+				    		$("#select_playlist").fadeOut(500);
+				        }
+				    },0);     
+				 });
+
+				$(document).on("click", ".add", function() {
+					var playbutton = $(this).closest(".record").find(".button_play button");
+					var video_id = playbutton.attr("id");
+
+					if (typeof video_id === 'undefined') {
+						var query = $(this).closest(".record").find(".button_play button").attr("attr-query");
+						$.ajax({
+							type: "POST",
+							url: "/searchYoutube",
+							cache: false,
+							data: "query=" + query,
+							success: function(data) {
+								var result = data.split('<joelamltc>');
+								var videoId = result[0];
+								var thumbnail = result[1];
+								playbutton.attr("id", videoId);
+								playbutton.attr("attr-thumbnail", thumbnail);
+								$("#selected_track").val(videoId);
+								$("#selected_track_thumbnail").val(thumbnail);
+							}
+						});
+					}
+
+					var offset = $(this).offset();
+					var high = $(window).height() - 60;
+					if ($("#select_playlist").is(":visible")) {
+						$("#select_playlist").fadeOut(500);
+					}
+					else {
+						if (offset.top < high - 200) {
+							$("#select_playlist").css({"left" : (offset.left + $(this).width() + 13) , "top" : (offset.top + $(this).height()), "outline" : 0}).attr("tabindex", -1).fadeIn(500).focus();
+						}
+						else {
+							$("#select_playlist").css({"left" : (offset.left + $(this).width() + 13) , "top" : (high - 200), "outline" : 0}).fadeIn(500).focus();
+						}
+					}
+				});
+
+				$(document).on("click", ".select_playlist", function(event) {
+					event.preventDefault();
+					var playlist_id = $(this).attr("attr-playlist-id");
+					var video_id = $("#selected_track").val();
+					var track_name = $.trim($("#" + video_id).closest(".record").find(".song_name").html());
+					var track_artist = $.trim($("#" + video_id).closest(".record").find(".song_artist a").html());
+					var thumbnail = $("#selected_track_thumbnail").val();
+					$.ajax({
+						type: "POST",
+						url: "/playlist",
+						cache: false,
+						data: "action=addTrackToPlaylist&data=" + playlist_id + "&video_id=" + video_id + "&track_name=" + track_name + "&track_artist=" + track_artist + "&thumbnail=" + thumbnail,
+						success: function(data) {
+							var timer;
+							var counter = 0;
+							$("#select_playlist").fadeOut(500);
+							timer = setInterval(function() {
+								if (counter == 10) {
+									clearTimeout(timer);
+								}
+								else if (counter % 2 == 0){
+									$("div.playlist_name[attr-playlist-id=" + data + "]").parent().css("background", "#171717");
+									counter++;
+								}
+								else {
+									$("div.playlist_name[attr-playlist-id=" + data + "]").parent().css("background", "#272727");
+									counter++;
+								}
+							}, 100);
+						}
+					});
+				});
+
+				$(document).on("click", ".delete", function() {
+					var track = $.trim($(this).closest(".record").find(".song_name").text());
+					if (confirm("Are you sure to delete TRACK \""+ track +"\"?")) {
+						var track_id = $(this).attr("attr-id");
+						var playlist_id = $("#delete_playlist").attr("attr-id");
+						var deletebutton = $(this);
+						$.ajax({
+							type: "POST",
+							url: "/playlist",
+							cache: false,
+							data: "action=deleteTrack&data=" + track_id + "&playlist=" + playlist_id,
+							success: function(data) {
+								deletebutton.parent().parent().fadeOut(1000, function() {
+									$(this).remove();
+								});
+							}
+						});
+					}
 				});
 			});
 		</script>
