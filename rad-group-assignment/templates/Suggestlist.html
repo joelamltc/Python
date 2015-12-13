@@ -1,0 +1,34 @@
+<div id="title">
+	Playlist: {{name}}
+</div>
+
+<div class="trackRecordHeader">
+	<div class="songHeader">
+		SONG
+	</div>
+	<div class="artistHeader">
+		ARTIST
+	</div>
+</div>
+
+<div id="resultContainer">
+	{% for result in results %}
+	<div class="record">
+		<div class="button_play">
+			<button class="play" type="button" attr-query="{{ result.query }}" id="{{result.video_id}}" attr-thumbnail="{{result.thumbnail}}"></button>
+		</div>
+
+		<div class="button_add">
+			<button class="add" type="button"></button>
+		</div>
+
+		<div class="song_name">
+			{{ result.track }}
+		</div>
+
+		<div class="song_artist">
+			<a href="#" attr-artist-name="{{ result.artistQuery }}">{{ result.artist }}</a>
+		</div>
+	</div>
+	{% endfor %}
+</div>

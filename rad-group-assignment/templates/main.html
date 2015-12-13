@@ -191,7 +191,25 @@
   			}
 
   			function playerSwitch(playbutton, player_video_id, videoId, query, thumbnail, song_name, song_artist) {
-  				console.log(song_name + " " + song_artist);
+  				$.ajax({
+					type: "POST",
+					url: "/listening",
+					cache: false,
+					data: "queryString="+ query +"&videoID="+ videoId +"&thumbnail="+ thumbnail +"&track="+ song_name +"&artist=" + song_artist,
+					success: function(data) {
+						$.ajax({
+							type: "POST",
+							url: "/searchYoutube",
+							cache: false,
+							data: "query=" + query,
+							success: function(data) {
+								var result = data.split('<joelamltc>');
+								printLyrics(result[2]);
+							}
+						});
+					}
+				});
+
   				if (player_video_id == videoId && query == $("#playing_query").val()) {
 					// player state
 					// -1 – unstarted
@@ -742,6 +760,13 @@
 					event.preventDefault();
 					var keyWords = $(this).find('input[name="key_words"]').val();
 
+					$(".playlist_content").each(function() {
+						$(this).removeClass("selected_playlist");
+						$(this).find(".playlist_icon img").attr("src", "/pics/icons/music_grey.png");
+					});
+					$(".suggestlist").removeClass("selected_playlist");
+					$(".suggestlist").find(".playlist_icon img").attr("src", "/pics/icons/music_grey.png");
+
 					$.ajax({
 						type: "POST",
 						url: "/result",
@@ -801,6 +826,18 @@
 					});
 					$(this).addClass("selected_playlist");
 					$(this).find(".playlist_icon img").attr("src", "/pics/icons/music.png");
+
+					$.ajax({
+						type: "POST",
+						url: "/playlist",
+						cache: false,
+						data: "action=displaySuggestlistDetail",
+						success: function(data) {
+							$("#content").html(data).hide();
+							$("#content").fadeIn(1000);
+							search = true;
+						}
+					});
 				});
 
 				$("#add_playlist").click(function() {
