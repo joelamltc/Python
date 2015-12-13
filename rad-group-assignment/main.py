@@ -245,8 +245,28 @@ class PlaylistHandler(webapp2.RequestHandler):
 			track = self.request.get('track_name')
 			artist = self.request.get('track_artist')
 			thumbnail = self.request.get('thumbnail')
-			PlaylistDetail(videoID = video_id, track = track, artist = artist, thumbnail = thumbnail, parent = playlist_key).put()
-			self.response.write(data)
+			query = '%s %s' % (artist, track)
+			track_key = PlaylistDetail(videoID = video_id, track = track, artist = artist, thumbnail = thumbnail, parent = playlist_key).put()
+			playlist_template = '''
+				<div class="record">
+					<div class="button_play">
+						<button class="play" type="button" attr-query="%s" id="%s" attr-thumbnail="%s"></button>
+					</div>
+
+					<div class="button_delete">
+						<button class="delete" type="button" attr-id="%s"></button>
+					</div>
+
+					<div class="song_name">
+						%s
+					</div>
+
+					<div class="song_artist">
+						<a href="#" attr-artist-name="%s">%s</a>
+					</div>
+				</div>
+				''' % (urllib2.quote(query.encode('utf-8')), video_id, cgi.escape(thumbnail), track_key.id(), track, urllib2.quote(artist.encode('utf-8')), artist)
+			self.response.write(data + '<joelamltc>' + playlist_template)
 
 		elif data and action == 'deleteTrack':
 			playlist_id = self.request.get('playlist')

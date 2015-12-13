@@ -119,6 +119,10 @@ a:hover{
   	text-overflow: ellipsis;
 }
 
+.selected_playlist{
+	background: #171717 !important;
+}
+
 #playlist{
 	font-size: 24px;
 	font-family: 'Montserrat', sans-serif;
@@ -443,8 +447,8 @@ a:hover{
 	border: none;
 	background-color: #272727;
 	-webkit-box-shadow: 0 8px 6px -6px black;
-	   -moz-box-shadow: 0 8px 6px -6px black;
-	        box-shadow: 0 8px 6px -6px black;
+	-moz-box-shadow: 0 8px 6px -6px black;
+	box-shadow: 0 8px 6px -6px black;
 }
 
 #submit_playlist_name:hover{
@@ -461,6 +465,40 @@ a:hover{
 	float: left;
 	bottom: 61px;
 	background-color: #272727;
+}
+
+#playing_track_thumbnail{
+	width: 100px; 
+	height: 100%;
+	float: left;
+	border: none;
+}
+
+#playing_track_info{
+	text-align: center;
+	float: inherit;
+	font-size: 10px;
+	height: 30px;
+	width: 100px;
+	white-space: nowrap;
+	overflow: hidden;
+  	text-overflow: ellipsis;
+}
+
+#add_playing_track{
+	float: inherit;
+	height: 30px;
+	width: 100px;
+	background: url(/pics/icons/plus_grey.png) no-repeat;
+	background-size: 25px 25px;
+	background-position: center;
+}
+
+#add_playing_track:hover{
+	cursor: pointer;
+	background: url(/pics/icons/plus.png) no-repeat;
+	background-size: 25px 25px;
+	background-position: center;
 }
 
 .player_contorller{
