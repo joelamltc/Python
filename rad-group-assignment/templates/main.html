@@ -841,6 +841,7 @@
 				});
 
 				$("#add_playlist").click(function() {
+					$("#select_playlist").focusout();
 					if ($("#new_playlist_name").is(":visible")) {
 						$("#new_playlist_name").fadeOut();
 					}
@@ -959,7 +960,7 @@
 						var video_id = playbutton.attr("id");
 
 						if (typeof video_id === 'undefined') {
-							var query = $(this).closest(".record").find(".button_play button").attr("attr-query");
+							var query = playbutton.attr("attr-query");
 							$.ajax({
 								type: "POST",
 								url: "/searchYoutube",
@@ -973,8 +974,16 @@
 									playbutton.attr("attr-thumbnail", thumbnail);
 									$("#selected_track").val(videoId);
 									$("#selected_track_thumbnail").val(thumbnail);
-									$("#selected_track_name").val($.trim($("#" + videoId).closest(".record").find(".song_name").html()));
-									$("#selected_track_artist").val($.trim($("#" + videoId).closest(".record").find(".song_artist a").html()));
+
+									var selected_track_name = $.trim($("#" + videoId).closest(".record").find(".song_name").html());
+									if (selected_track_name) {
+										$("#selected_track_name").val(selected_track_name);
+										$("#selected_track_artist").val($.trim($("#" + videoId).closest(".record").find(".song_artist a").html()));
+									}
+									else {
+										$("#selected_track_name").val($.trim($("#" + videoId).closest(".record").find(".trackName").html()));
+										$("#selected_track_artist").val($.trim($("#artistName").html()));
+									}
 								}
 							});
 						}
@@ -1014,6 +1023,8 @@
 								var timer;
 								var counter = 0;
 								var result = data.split("<joelamltc>");
+								var playlist_token = $("#playlist_token").val();
+
 								$("#select_playlist").fadeOut(500);
 								timer = setInterval(function() {
 									if (counter == 10) {
@@ -1029,11 +1040,16 @@
 										counter++;
 									}
 								}, 100);
-								if ($("#resultContainer div.record:last").length == 0) {
-									$("#resultContainer").html(result[1]).hide().fadeIn(1000);
-								}
-								else {
-									$("#resultContainer div.record:last").after(result[1]).hide().fadeIn(1000);
+
+								if (playlist_token == result[0]) {
+									if ($("#resultContainer div.record:last").length == 0) {
+										$("#resultContainer").html(result[1]);
+										$("#resultContainer div.record:last").hide().fadeIn(1000);
+									}
+									else {
+										$("#resultContainer div.record:last").after(result[1]);
+										$("#resultContainer div.record:last").hide().fadeIn(1000);
+									}
 								}
 							}
 						});
