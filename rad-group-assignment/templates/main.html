@@ -278,10 +278,19 @@
   				var query = $(this).attr("attr-query");
   				var id = $(this).attr("id");
   				var thumbnail = $(this).attr("attr-thumbnail");
-  				var song_name = $.trim($(this).closest(".record").find(".song_name").html());
-  				var song_artist = $.trim($(this).closest(".record").find(".song_artist a").html());
+  				var song_name;
+  				var song_artist;
 				var playbutton = $(this);
 				var player_video_id = (typeof player.getVideoData().video_id === 'undefined') ? '' : player.getVideoData().video_id;
+
+				if ($("#resultContainer").find(".record").length > 0) {
+					song_name = $.trim($(this).closest(".record").find(".song_name").html());
+					song_artist = $.trim($(this).closest(".record").find(".song_artist a").html());
+				}
+				else if ($("#artistResultContainer").find(".record").length > 0) {
+					song_name = $.trim($(this).closest(".record").find(".trackName").html());
+		  			song_artist = $.trim($("#artistName").html());
+				}
 
   				if (id) {
   					playerSwitch(playbutton, player_video_id, id, query, thumbnail, song_name, song_artist);
@@ -305,16 +314,30 @@
 				}
 
 				if (search) {
+					var tracks;
 					playlist = [];
 					originPlaylist = [];
-					var tracks = $(this).closest("#resultContainer").find(".record");
+					if ($("#resultContainer").find(".record").length > 0) {
+						tracks = $(this).closest("#resultContainer").find(".record");
+					}
+					else if ($("#artistResultContainer").find(".record").length > 0) {
+						tracks = $(this).closest("#artistResultContainer").find(".record");
+					}
 					var counter = 0;
 					tracks.each(function() {
 						var playbutton = $(this).find(".button_play button")
 						var trackid = playbutton.attr("id");
 						var query = playbutton.attr("attr-query");
-						var name = $.trim($(this).find(".song_name").html());
-						var artist = $.trim($(this).find(".song_artist a").html());
+						var name;
+						var artist;
+						if ($("#resultContainer").find(".record").length > 0) {
+							name = $.trim($(this).find(".song_name").html());
+							artist = $.trim($(this).find(".song_artist a").html());
+						}
+						else if ($("#artistResultContainer").find(".record").length > 0) {
+							name = $.trim($(this).find(".trackName").html());
+							artist = $.trim($("#artistName").html());
+						}
 						if (trackid) {
 							var thumbnail = playbutton.attr("attr-thumbnail");
 							var track = {};
@@ -413,7 +436,13 @@
 							var videoId = next.trackid;
 							var n_thumbnail = next.thumbnail;
 							var playbutton;
-							var track_playbtn = $("#resultContainer").find("button.play");
+							var track_playbtn;
+							if ($("#resultContainer").find(".record").length > 0) {
+								track_playbtn = $("#resultContainer").find("button.play");
+							}
+							else if ($("#artistResultContainer").find(".record").length > 0) {
+								track_playbtn = $("#artistResultContainer").find("button.play");
+							}
 							for (var i = 0; i < playlist.length; i++) {
 								if (playlist[i].query == query) {
 									playlist_pos = i;
@@ -456,8 +485,13 @@
 							var videoId = result[0];
 							var n_thumbnail = result[1];
 							var playbutton;
-							var track_playbtn = $("#resultContainer").find("button.play");
-							for (var i = 0; i < playlist.length; i++) {
+							var track_playbtn;
+							if ($("#resultContainer").find(".record").length > 0) {
+								track_playbtn = $("#resultContainer").find("button.play");
+							}
+							else if ($("#artistResultContainer").find(".record").length > 0) {
+								track_playbtn = $("#artistResultContainer").find("button.play");
+							}							for (var i = 0; i < playlist.length; i++) {
 								if (playlist[i].query == query) {
 									playlist_pos = i;
 									playlist_query = playlist[i].query;
@@ -510,8 +544,13 @@
 							var videoId = prev.trackid;
 							var n_thumbnail = prev.thumbnail;
 							var playbutton;
-							var track_playbtn = $("#resultContainer").find("button.play");
-							for (var i = 0; i < playlist.length; i++) {
+							var track_playbtn;
+							if ($("#resultContainer").find(".record").length > 0) {
+								track_playbtn = $("#resultContainer").find("button.play");
+							}
+							else if ($("#artistResultContainer").find(".record").length > 0) {
+								track_playbtn = $("#artistResultContainer").find("button.play");
+							}							for (var i = 0; i < playlist.length; i++) {
 								if (playlist[i].query == query) {
 									playlist_pos = i;
 									playlist_query = playlist[i].query;
@@ -553,8 +592,13 @@
 							var videoId = result[0];
 							var n_thumbnail = result[1];
 							var playbutton;
-							var track_playbtn = $("#resultContainer").find("button.play");
-							for (var i = 0; i < playlist.length; i++) {
+							var track_playbtn;
+							if ($("#resultContainer").find(".record").length > 0) {
+								track_playbtn = $("#resultContainer").find("button.play");
+							}
+							else if ($("#artistResultContainer").find(".record").length > 0) {
+								track_playbtn = $("#artistResultContainer").find("button.play");
+							}							for (var i = 0; i < playlist.length; i++) {
 								if (playlist[i].query == query) {
 									playlist_pos = i;
 									playlist_query = playlist[i].query;
