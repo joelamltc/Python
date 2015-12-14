@@ -43,7 +43,9 @@
 		<div id="content"></div>
 		<div id="select_playlist">
 			<div class="select_playlist_title">Select Playlist</div>
-			{{select_playlist_template}}
+			<div class="select_playlist_container">
+				{{select_playlist_template}}
+			</div>
 		</div>
 		<div id="player"></div>
 		<div class="lyrics"></div>
@@ -885,12 +887,13 @@
 				});
 
 				$("#add_playlist").click(function() {
+					var offset = $(this).offset();
 					$("#select_playlist").focusout();
 					if ($("#new_playlist_name").is(":visible")) {
 						$("#new_playlist_name").fadeOut();
 					}
 					else {
-						$("#new_playlist_name").fadeIn(function() {
+						$("#new_playlist_name").css("left", (offset.left + 201) + "px").fadeIn(function() {
 							$("#playlist_name_field").focus();
 						});
 					}
