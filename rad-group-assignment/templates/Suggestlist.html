@@ -1,9 +1,5 @@
 <div id="title">
 	Playlist: {{name}}
-	<div id="deletePlaylist">
-		<button id="delete_playlist" type="button" attr-id="{{playlist_id}}"></button>
-		<input type="hidden" id="playlist_token" name="playlist_token" value="{{playlist_id}}">
-	</div>
 </div>
 
 <div class="trackRecordHeader">
@@ -22,8 +18,8 @@
 			<button class="play" type="button" attr-query="{{ result.query }}" id="{{result.video_id}}" attr-thumbnail="{{result.thumbnail}}"></button>
 		</div>
 
-		<div class="button_delete">
-			<button class="delete" type="button" attr-id="{{result.track_id}}"></button>
+		<div class="button_add">
+			<button class="add" type="button"></button>
 		</div>
 
 		<div class="song_name">

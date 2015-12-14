@@ -198,7 +198,23 @@ class PlaylistHandler(webapp2.RequestHandler):
 		data = self.request.get('data')
 		action = self.request.get('action')
 
-		if data and action == 'addPlaylist':
+		if action == 'displaySuggestlistDetail':
+			records = Suggest.query().order(-Suggest.counter).fetch(100)
+
+			tracks = []
+			for record in records:
+				logging.info(record)
+				query = "%s %s" % (record.artist, record.track)
+				tracks.append({'track': record.track, 'artist': record.artist, 'query': urllib2.quote(query.encode('utf-8')), 
+					'artistQuery': urllib2.quote(record.artist.encode('utf-8')), 'video_id': record.videoID, 'thumbnail': cgi.escape(record.thumbnail)})
+			template_values = {
+				'results': tracks,
+				'name': "Suggested List"
+			}
+			template = JINJA_ENVIRONMENT.get_template('Suggestlist.html')
+			self.response.write(template.render(template_values))
+
+		elif data and action == 'addPlaylist':
 			playlist_key = Playlist(name = data, parent = User.getUserKey(user.email())).put()
 			playlist_template = '''
 				<div class="playlist_content">
@@ -273,6 +289,22 @@ class PlaylistHandler(webapp2.RequestHandler):
 			PlaylistDetail.getTrackKey('User', user.email(), 'Playlist', playlist_id, data).delete()
 			self.response.write(data)
 
+class ListeningHandler(webapp2.RequestHandler):
+	def post(self):
+		video_id 	= self.request.get('videoID')
+		trackName 	= self.request.get('track')
+		artistName 	= self.request.get('artist')
+		picture 	= self.request.get('thumbnail')
+		qString 	= self.request.get('queryString')
+
+		if( Suggest.recordExists( video_id, trackName, artistName, qString) == 0 ):
+			record = Suggest(videoID = video_id, track = trackName, artist = artistName, thumbnail = picture ,queryString = qString, counter = 1)
+			record.put()
+		else:
+			record = Suggest.getKEY( video_id, trackName, artistName, qString).get()
+			record.counter = record.counter + 1
+			record.put()
+
 class User(ndb.Model):
 	email		= ndb.StringProperty()
 	userName	= ndb.StringProperty()
@@ -305,17 +337,30 @@ class PlaylistDetail(ndb.Model):
 	def getTrackKey(cls, userKind, email, playlistKind, playlistid, trackid):
 		return ndb.Key(userKind, email, playlistKind, int(playlistid), cls, int(trackid))
 
-class SuggestionPlaylist(ndb.Model):
-	videoID		= ndb.StringProperty()
+class Suggest(ndb.Model):
+	videoID 	= ndb.StringProperty()
 	track		= ndb.StringProperty()
 	artist 		= ndb.StringProperty()
-	thumbnail   = ndb.StringProperty()
+	thumbnail 	= ndb.StringProperty()
+	queryString = ndb.StringProperty()
+	counter 	= ndb.IntegerProperty()
 	date 		= ndb.DateTimeProperty(auto_now_add = True)
+
+	@classmethod
+	def recordExists(cls, pvideoID, ptrack, partist, pqueryString):
+		return cls.query(cls.videoID == pvideoID, cls.track == ptrack, cls.artist == partist, cls.queryString == pqueryString).count()
+
+	@classmethod
+	def getKEY(cls, pvideoID, ptrack, partist, pqueryString):
+		records = cls.query(cls.videoID == pvideoID, cls.track == ptrack, cls.artist == partist, cls.queryString == pqueryString)
+		for record in records:
+			return record.key
 
 app = webapp2.WSGIApplication([
 	('/', MainHandler),
 	('/result', SearchTrackHandler),
 	('/artist', SearchArtistHandler),
 	('/playlist', PlaylistHandler),
-	('/searchYoutube', SearchYoutube)
+	('/searchYoutube', SearchYoutube),
+	('/listening', ListeningHandler)
 ], debug=True)
