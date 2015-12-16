@@ -363,10 +363,10 @@ a:hover{
   	line-height: 25px;
 }
 
-.song_name:hover, .song_artist:hover{
+/*.song_name:hover, .song_artist:hover{
 	text-overflow:inherit;
 	overflow:visible;
-}
+}*/
 
 #deletePlaylist{
 	height: 100%;
