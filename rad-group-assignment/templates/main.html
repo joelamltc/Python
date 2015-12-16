@@ -5,7 +5,9 @@
 		<title>Well Play - A music player with lyrics</title>
 		<script src="/js/jquery-2.1.4.min.js"></script>
 		<script src="/js/bootstrap.min.js"></script>
+		<script src="/js/jquery-ui.js"></script>
 		<link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+		<link rel="stylesheet" type="text/css" href="/css/jquery-ui.css">
 		<link rel="stylesheet" type="text/css" href="/css/css_main.css">
 		<link rel="stylesheet" type="text/css" href="/css/slider.css">
 		<link rel="icon shortcut" href="/pics/icons/wp_icon_withouttext.png">
@@ -15,7 +17,7 @@
 			<div id="logo"><img src="/pics/icons/wp_logo.png" height="55px"></div>
 			<div id="search">
 				<form id="searchField" action="/result" method="get">
-					<input type="text" class="form-control" name="key_words" placeholder="Search">
+					<input type="text" class="form-control" id="key_words" name="key_words" placeholder="Search">
 				</form>
 				<input type="hidden" id="playing_track" name="playing_track" value="">
 				<input type="hidden" id="playing_query" name="playing_query" value="">
@@ -106,7 +108,12 @@
 			var loop = false;
 			var loop_one = false;
 			var search = false;
-			var _ = (id) => document.getElementById(id);
+			var suggestCallBack;
+			
+			function _(id) {
+				return document.getElementById(id);
+			}
+
 		    function onYouTubeIframeAPIReady() {
 	        	player = new YT.Player('player', {
 		          	height: '250',
@@ -798,13 +805,41 @@
 				$body = $("body");
 
 				$(document).on({
-				    ajaxStart: function() { $body.addClass("loading"); },
-				    ajaxStop: function() { $body.removeClass("loading"); }    
+				    ajaxStart: function(event) { if (event.target.activeElement.id != "key_words") { $body.addClass("loading"); }},
+				    ajaxStop: function(event) { if (event.target.activeElement.id != "key_words") { $body.removeClass("loading"); }}   
+				});
+
+				$("#key_words").autocomplete({
+			        source: function(request, response) {
+			            $.getJSON("http://suggestqueries.google.com/complete/search?callback=?",
+			                { 
+			                  "hl":"en",
+			                  "ds":"yt",
+			                  "jsonp":"suggestCallBack",
+			                  "q":request.term,
+			                  "client":"youtube"
+			                }
+			            );
+			            suggestCallBack = function (data) {
+			                var suggestions = [];
+			                $.each(data[1], function(key, val) {
+			                    suggestions.push({"value":val[0]});
+			                });
+			                suggestions.length = 10;
+			                response(suggestions);
+			            }
+			        }
+			    });
+
+				$(document).on("click", ".ui-menu-item", function() {
+					$("#searchField").trigger("submit");
 				});
 
 				$("#searchField").submit(function(event){
 					event.preventDefault();
 					var keyWords = $(this).find('input[name="key_words"]').val();
+
+					$(".ui-autocomplete").css("display", "none");
 
 					$(".playlist_content").each(function() {
 						$(this).removeClass("selected_playlist");
@@ -910,20 +945,20 @@
 							success: function(data) {
 								var template = data.split("<joelamltc>");
 								var playlist = $("#playlist_container div:last").parent().attr("class");
-								var select_playlist = $("#select_playlist div:last");
+								var select_playlist = $("#select_playlist div.select_playlist_container:last");
 
 								if (playlist == "playlist_content") {
 									$("#playlist_container div.playlist_content:last").after(template[0]);
 								}
-								else if (playlist == "suggestlist") {
+								else {
 									$("#playlist_container div.suggestlist:last").after(template[0]);
 								}
 
-								if (select_playlist.attr("class") == "select_playlist_title") {
-									var select_playlist = $("#select_playlist div:last").after(template[1]);
+								if (select_playlist.attr("class") == "select_playlist_content") {
+									$("#select_playlist div.select_playlist_content:last").after(template[1]);
 								}
 								else {
-									var select_playlist = $("#select_playlist div.select_playlist_content:last").after(template[1]);
+									$("#select_playlist div.select_playlist_container").append(template[1]);
 								}
 
 								$("#playlist_container").scrollTop($("#playlist_container").height());
