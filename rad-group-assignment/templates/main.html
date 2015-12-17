@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 	<head>
 		<meta charset="UTF-8">
@@ -200,25 +200,6 @@
   			}
 
   			function playerSwitch(playbutton, player_video_id, videoId, query, thumbnail, song_name, song_artist) {
-  				$.ajax({
-					type: "POST",
-					url: "/listening",
-					cache: false,
-					data: "queryString="+ query +"&videoID="+ videoId +"&thumbnail="+ thumbnail +"&track="+ song_name +"&artist=" + song_artist,
-					success: function(data) {
-						$.ajax({
-							type: "POST",
-							url: "/searchYoutube",
-							cache: false,
-							data: "query=" + query,
-							success: function(data) {
-								var result = data.split('<joelamltc>');
-								printLyrics(result[2]);
-							}
-						});
-					}
-				});
-
   				if (player_video_id == videoId && query == $("#playing_query").val()) {
 					// player state
 					// -1 – unstarted
@@ -256,6 +237,24 @@
 					}
 				}
 				else {
+					$.ajax({
+						type: "POST",
+						url: "/listening",
+						cache: false,
+						data: "queryString="+ query +"&videoID="+ videoId +"&thumbnail="+ thumbnail +"&track="+ song_name +"&artist=" + song_artist,
+						success: function(data) {
+							$.ajax({
+								type: "POST",
+								url: "/searchYoutube",
+								cache: false,
+								data: "query=" + query,
+								success: function(data) {
+									var result = data.split('<joelamltc>');
+									printLyrics(result[2]);
+								}
+							});
+						}
+					});
 					$("#playing_track").val(videoId);
 					$("#playing_query").val(query);
 					$("#playing_track_name").val(song_name);
@@ -857,6 +856,12 @@
 							$("#content").html(data).hide();
 							$("#content").fadeIn(1000);
 							search = true;
+						},
+						beforeSend: function() {
+							$body.addClass("loading");
+						},
+						complete: function() {
+							$body.removeClass("loading");
 						}
 					});
 				});
