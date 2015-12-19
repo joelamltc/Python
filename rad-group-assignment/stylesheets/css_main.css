@@ -164,9 +164,6 @@ a:hover{
 	height:20px;
 	width: 200px;
 	cursor: pointer;
-}
-
-.select_playlist{
 	overflow: hidden;
 	white-space: nowrap;
   	text-overflow: ellipsis;
@@ -175,9 +172,14 @@ a:hover{
 .select_playlist_name{
 	margin-left: 15px;
 	float:left;
-	width:150px;
-	white-space: nowrap;
+	width: 135px;
+}
+
+.select_playlist{
+	width: 135px;
+	display: block;
 	overflow: hidden;
+	white-space: nowrap;
   	text-overflow: ellipsis;
 }
 
@@ -407,6 +409,7 @@ a:hover{
 	line-height: 36px;
 	font-family: 'Montserrat', sans-serif;
 	overflow-y: scroll;
+	background: #272727;
 }
 
 .clear{

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 	<head>
 		<meta charset="UTF-8">
@@ -202,12 +202,12 @@
   			function playerSwitch(playbutton, player_video_id, videoId, query, thumbnail, song_name, song_artist) {
   				if (player_video_id == videoId && query == $("#playing_query").val()) {
 					// player state
-					// -1 – unstarted
-					// 0 – ended
-					// 1 – playing
-					// 2 – paused
-					// 3 – buffering
-					// 5 – video cued
+					// -1  unstarted
+					// 0  ended
+					// 1  playing
+					// 2  paused
+					// 3  buffering
+					// 5 video cued
 					if (player.getPlayerState() == -1 || player.getPlayerState() == 5 || player.getPlayerState() == 0) {
 						$("#playing_track").val(videoId);
 						$("#playing_query").val(query);
@@ -644,8 +644,6 @@
 			
 			$("#progressbar").mouseup(function() {
 				player.seekTo(this.value, true);
-			}).mousedown(function() {
-				player.seekTo(this.value, false);
 			});
 
 			$("#hide").click(function() {
