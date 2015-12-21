@@ -583,6 +583,7 @@ $("#mute").click(function() {
 		$(this).attr("src", "/pics/icons/sound.png");
 		player.unMute();
 		$("#volume").val($(this).attr("data-vol"));
+		player.setVolume($(this).attr("data-vol"));
 	}
 });
 
@@ -650,6 +651,16 @@ $("#play").click(function() {
 	}
 });
 
+$("#volume").bind("mousewheel DOMMouseScroll", function(event) {
+    if (event.originalEvent.wheelDelta > 0 || event.originalEvent.detail < 0) {
+    	_("volume").stepUp(3);
+    }
+    else {
+    	_("volume").stepDown(3);
+    }
+   	volume(_("volume"));
+});
+
 function playVideo() {
 	player.playVideo();
 }
@@ -670,8 +681,21 @@ function switchSong(videoId) {
 	player.loadVideoById(videoId, 0, "small");
 }
 
-function volume_tooltip() {
-	player.setVolume(_("volume").value);
+function volume(bar) {
+	var volume = bar.value;
+
+	if (bar.value == 0) {
+		$("#mute").attr("src", "/pics/icons/mute.png");
+		$("#mute").attr("data-vol", 100);
+		player.mute();
+		player.setVolume(0);				
+	}
+	else {
+		$("#mute").attr("src", "/pics/icons/sound.png");
+		$("#mute").attr("data-vol", volume);
+		player.unMute();
+		player.setVolume(volume);
+	}
 }
 
 function calculateTime(s) {
