@@ -550,6 +550,7 @@ function mouseupProgressbar(bar) {
 
 function mousemoveProgressbar(bar) {
 	player.seekTo(bar.value, false);
+	mouseupProgressbar(bar);
 };
 
 $("#hide").click(function() {
